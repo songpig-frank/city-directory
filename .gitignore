@@ -1,0 +1,23 @@
+# Local Configuration
+config.php
+
+# Databases & Local Storage
+database/*.sqlite
+database/*.db
+uploads/
+public/uploads/
+
+# User Data & Logs
+*.log
+cron/*.log
+
+# Environment & Dependencies
+.env
+site.db
+vendor/
+
+# System Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

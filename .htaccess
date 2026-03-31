@@ -1,0 +1,61 @@
+RewriteEngine On
+RewriteBase /
+
+# Force HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+# Don't rewrite existing files and directories
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Route everything through index.php
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Security: block access to sensitive files
+<FilesMatch "\.(php|sql|log|md)$">
+    <If "%{REQUEST_URI} !~ m#^/(index\.php)?$#">
+        # Allow index.php, block all other .php files from direct access
+    </If>
+</FilesMatch>
+
+# Block access to hidden files and directories
+<IfModule mod_rewrite.c>
+    RewriteRule (^|/)\.(?!well-known) - [F]
+</IfModule>
+
+# Block access to sensitive directories
+RedirectMatch 403 ^/includes/
+RedirectMatch 403 ^/database/
+RedirectMatch 403 ^/cron/
+RedirectMatch 403 ^/lang/
+RedirectMatch 403 ^/handlers/
+
+# Cache static assets
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>
+
+# Compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css
+    AddOutputFilterByType DEFLATE application/javascript application/json
+    AddOutputFilterByType DEFLATE application/xml application/xhtml+xml
+    AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
