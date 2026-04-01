@@ -9,14 +9,15 @@ RewriteBase /
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} !^/\.well-known/acme-challenge/
+RewriteCond %{REQUEST_URI} !^/clean-sweep\.php$
 
 # Route everything through index.php
 RewriteRule ^(.*)$ index.php [QSA,L]
 
 # Security: block access to sensitive files
 <FilesMatch "\.(php|sql|log|md)$">
-    <If "%{REQUEST_URI} !~ m#^/(index\.php)?$#">
-        # Allow index.php, block all other .php files from direct access
+    <If "%{REQUEST_URI} !~ m#^/(index\.php|clean-sweep\.php)?$#">
+        # Allow index.php and clean-sweep.php, block all other .php files
     </If>
 </FilesMatch>
 
