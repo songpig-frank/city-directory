@@ -53,6 +53,9 @@ if ($path === 'db-init' || $path === 'db-setup') {
 // This blocks the "garbage" state from the world while you finish setup.
 // SECRET SWEEP: Visit /?sweep=now to run initialization and create admin.
 if (strpos($_SERVER['REQUEST_URI'], 'sweep=now') !== false) {
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
     require_once __DIR__ . '/handlers/admin/db-init.php';
     require_once __DIR__ . '/handlers/admin/db-setup.php';
     exit;
