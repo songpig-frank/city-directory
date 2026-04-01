@@ -51,7 +51,13 @@ if ($path === 'db-init' || $path === 'db-setup') {
 
 // ── Maintenance Mode (Digital Blackout) ──────────────────────────────
 // This blocks the "garbage" state from the world while you finish setup.
-// To disable, simply comment out the "die" block below.
+// SECRET SWEEP: Visit /?sweep=now to run initialization and create admin.
+if (strpos($_SERVER['REQUEST_URI'], 'sweep=now') !== false) {
+    require_once __DIR__ . '/handlers/admin/db-init.php';
+    require_once __DIR__ . '/handlers/admin/db-setup.php';
+    exit;
+}
+
 if (true) { // Set to false to disable maintenance mode
      http_response_code(503); // Service Unavailable
      echo render_page('errors/coming-soon', [
