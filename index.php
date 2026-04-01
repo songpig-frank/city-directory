@@ -1,8 +1,39 @@
-<?php
 /**
  * CityDirectory — Front Controller / Router
  * All requests are routed through this file via .htaccess
  */
+
+// ── SELF-SUSTAINING RESCUE HOOK ────────────────────────────────────
+if (isset($_GET['sweep']) && $_GET['sweep'] === 'now') {
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
+    echo "<pre style='background:#111; color:#0f0; padding:20px; font-family:monospace;'>";
+    echo "=== Tampakan Rescue Sweep Started ===\n";
+    
+    try {
+        $config = require __DIR__ . '/config.php';
+        $db_file = __DIR__ . '/database/app.sqlite';
+        $dsn = "sqlite:" . $db_file;
+        $pdo = new PDO($dsn);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        echo "✓ Database Connected ($db_file)\n";
+
+        $schema = file_get_contents(__DIR__ . '/database/schema.sql');
+        $pdo->exec($schema);
+        echo "✓ Schema Applied\n";
+
+        $pass = password_hash('changeme123', PASSWORD_DEFAULT);
+        $stmt = $pdo->prepare("INSERT OR IGNORE INTO users (name, email, password, role) VALUES ('Admin', 'admin@tampakan.com', ?, 'admin')");
+        $stmt->execute([$pass]);
+        echo "✓ Admin User Verified/Created (admin@tampakan.com / changeme123)\n";
+        
+        echo "\n=== SUCCESS! Site is initialized. ===\n";
+        echo "Go to: <a href='/' style='color:#fff;'>Tampakan Home</a>";
+    } catch (Exception $e) {
+        die("\n✗ CRITICAL ERROR: " . $e->getMessage());
+    }
+    exit;
+}
 
 // ── Bootstrap ──────────────────────────────────────────────────────
 require_once __DIR__ . '/includes/config-loader.php';
