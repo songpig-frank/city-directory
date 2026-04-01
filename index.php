@@ -1,3 +1,4 @@
+<?php
 /**
  * CityDirectory — Front Controller / Router
  * All requests are routed through this file via .htaccess
