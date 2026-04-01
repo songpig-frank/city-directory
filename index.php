@@ -127,6 +127,10 @@ $routes = [
     // SEO
     ['GET',  'sitemap.xml',         'seo/sitemap'],
     ['GET',  'robots.txt',          'seo/robots'],
+
+    // Temporary Setup routes
+    ['GET',  'db-init',             'admin/db-init'],
+    ['GET',  'db-setup',            'admin/db-setup'],
 ];
 
 // ── Route Matching ─────────────────────────────────────────────────
