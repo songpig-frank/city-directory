@@ -49,6 +49,18 @@ if ($path === 'db-init' || $path === 'db-setup') {
     exit;
 }
 
+// ── Maintenance Mode (Digital Blackout) ──────────────────────────────
+// This blocks the "garbage" state from the world while you finish setup.
+// To disable, simply comment out the "die" block below.
+if (true) { // Set to false to disable maintenance mode
+     http_response_code(503); // Service Unavailable
+     echo render_page('errors/coming-soon', [
+         'title'   => 'Under Construction',
+         'message' => 'The Tampakan Directory is currently undergoing scheduled maintenance and database synchronization. We will be back online shortly!',
+     ]);
+     exit;
+}
+
 // ── Route Definitions ──────────────────────────────────────────────
 // Format: [method, pattern, handler_file]
 // Patterns use :param for dynamic segments
