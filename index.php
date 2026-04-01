@@ -33,14 +33,20 @@ date_default_timezone_set(config('timezone') ?? 'UTC');
 // Send security headers
 send_security_headers();
 
-// ── Parse Request ──────────────────────────────────────────────────
+// ── Parsing and Assets ──────────────────────────────────────────────
 $request_uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $path = trim($request_uri, '/');
 $method = $_SERVER['REQUEST_METHOD'];
 
-// ── Static Assets — let Apache serve them ──────────────────────────
 if (preg_match('/\.(css|js|png|jpg|jpeg|gif|svg|webp|ico|woff2?|ttf|map)$/', $path)) {
     return false;
+}
+
+// ── Setup Bypass (Nuclear Option for Production) ────────────────────
+if ($path === 'db-init' || $path === 'db-setup') {
+    $handler = $path === 'db-init' ? 'admin/db-init' : 'admin/db-setup';
+    require __DIR__ . '/handlers/' . $handler . '.php';
+    exit;
 }
 
 // ── Route Definitions ──────────────────────────────────────────────
