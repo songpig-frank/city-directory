@@ -9,23 +9,21 @@ if (isset($_GET['sweep']) && $_GET['sweep'] === 'now') {
     ini_set('display_errors', 1);
     error_reporting(E_ALL);
     echo "<pre style='background:#111; color:#0f0; padding:20px; font-family:monospace;'>";
-    echo "=== Tampakan Zero-Dependency Sweep Started ===\n";
+    echo "=== Tampakan Legacy-Compatible Sweep Started ===\n";
+    echo "PHP Version: " . phpversion() . "\n";
     
     try {
         // Driver Check
-        $drivers = PDO::getAvailableDrivers();
+        $drivers = class_exists('PDO') ? PDO::getAvailableDrivers() : [];
         echo "✓ Drivers: " . implode(', ', $drivers) . "\n";
-        if (!in_array('sqlite', $drivers)) {
-            throw new Error("SQLite driver is NOT enabled on this server.");
-        }
-
+        
         $db_file = __DIR__ . '/database/app.sqlite';
         $dsn = "sqlite:" . $db_file;
         $pdo = new PDO($dsn);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         echo "✓ Database Connected ($db_file)\n";
 
-        // Minimal Schema (Hardcoded to avoid file_get_contents failures)
+        // Minimal Schema
         $pdo->exec("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, email TEXT UNIQUE, password TEXT, role TEXT)");
         $pdo->exec("CREATE TABLE IF NOT EXISTS listings (id INTEGER PRIMARY KEY, title TEXT, slug TEXT UNIQUE)");
         $pdo->exec("CREATE TABLE IF NOT EXISTS site_settings (setting_key TEXT PRIMARY KEY, setting_value TEXT)");
@@ -33,15 +31,14 @@ if (isset($_GET['sweep']) && $_GET['sweep'] === 'now') {
 
         $pass = password_hash('changeme123', PASSWORD_DEFAULT);
         $stmt = $pdo->prepare("INSERT OR IGNORE INTO users (name, email, password, role) VALUES ('Admin', 'admin@tampakan.com', ?, 'admin')");
-        $stmt->execute([$pass]);
+        $stmt->execute(array($pass));
         echo "✓ Admin User Verified/Created (admin@tampakan.com / changeme123)\n";
         
         echo "\n=== SUCCESS! Core Site is initialized. ===\n";
         echo "Go to: <a href='/' style='color:#fff;'>Tampakan Home</a>";
-    } catch (Throwable $e) {
-        echo "\n✗ FATAL ERROR: " . $e->getMessage() . "\n";
+    } catch (Exception $e) {
+        echo "\n✗ SETUP ERROR: " . $e->getMessage() . "\n";
         echo "File: " . $e->getFile() . " (Line: " . $e->getLine() . ")\n";
-        echo "Stack Trace:\n" . $e->getTraceAsString();
     }
     exit;
 }
@@ -84,23 +81,15 @@ if (preg_match('/\.(css|js|png|jpg|jpeg|gif|svg|webp|ico|woff2?|ttf|map)$/', $pa
     return false;
 }
 
-// ── Setup Bypass (Nuclear Option for Production) ────────────────────
-if ($path === 'db-init' || $path === 'db-setup') {
-    $handler = $path === 'db-init' ? 'admin/db-init' : 'admin/db-setup';
-    require __DIR__ . '/handlers/' . $handler . '.php';
-    exit;
-}
-
 // ── Maintenance Mode (Digital Blackout) ──────────────────────────────
 // This blocks the "garbage" state from the world while you finish setup.
-// SECRET SWEEP: Visit /?sweep=now to run initialization and create admin.
-if (strpos($_SERVER['REQUEST_URI'], 'sweep=now') !== false) {
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
-    require_once __DIR__ . '/handlers/admin/db-init.php';
-    require_once __DIR__ . '/handlers/admin/db-setup.php';
-    exit;
+if (true) { // Set to false to disable maintenance mode
+     http_response_code(503); // Service Unavailable
+     echo render_page('errors/coming-soon', [
+         'title'   => 'Under Construction',
+         'message' => 'The Tampakan Directory is currently undergoing scheduled maintenance and database synchronization. We will be back online shortly!',
+     ]);
+     exit;
 }
 
 if (true) { // Set to false to disable maintenance mode
