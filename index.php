@@ -9,29 +9,39 @@ if (isset($_GET['sweep']) && $_GET['sweep'] === 'now') {
     ini_set('display_errors', 1);
     error_reporting(E_ALL);
     echo "<pre style='background:#111; color:#0f0; padding:20px; font-family:monospace;'>";
-    echo "=== Tampakan Rescue Sweep Started ===\n";
+    echo "=== Tampakan Zero-Dependency Sweep Started ===\n";
     
     try {
-        $config = require __DIR__ . '/config.php';
+        // Driver Check
+        $drivers = PDO::getAvailableDrivers();
+        echo "✓ Drivers: " . implode(', ', $drivers) . "\n";
+        if (!in_array('sqlite', $drivers)) {
+            throw new Error("SQLite driver is NOT enabled on this server.");
+        }
+
         $db_file = __DIR__ . '/database/app.sqlite';
         $dsn = "sqlite:" . $db_file;
         $pdo = new PDO($dsn);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         echo "✓ Database Connected ($db_file)\n";
 
-        $schema = file_get_contents(__DIR__ . '/database/schema.sql');
-        $pdo->exec($schema);
-        echo "✓ Schema Applied\n";
+        // Minimal Schema (Hardcoded to avoid file_get_contents failures)
+        $pdo->exec("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, email TEXT UNIQUE, password TEXT, role TEXT)");
+        $pdo->exec("CREATE TABLE IF NOT EXISTS listings (id INTEGER PRIMARY KEY, title TEXT, slug TEXT UNIQUE)");
+        $pdo->exec("CREATE TABLE IF NOT EXISTS site_settings (setting_key TEXT PRIMARY KEY, setting_value TEXT)");
+        echo "✓ Core Tables Verified/Created\n";
 
         $pass = password_hash('changeme123', PASSWORD_DEFAULT);
         $stmt = $pdo->prepare("INSERT OR IGNORE INTO users (name, email, password, role) VALUES ('Admin', 'admin@tampakan.com', ?, 'admin')");
         $stmt->execute([$pass]);
         echo "✓ Admin User Verified/Created (admin@tampakan.com / changeme123)\n";
         
-        echo "\n=== SUCCESS! Site is initialized. ===\n";
+        echo "\n=== SUCCESS! Core Site is initialized. ===\n";
         echo "Go to: <a href='/' style='color:#fff;'>Tampakan Home</a>";
-    } catch (Exception $e) {
-        die("\n✗ CRITICAL ERROR: " . $e->getMessage());
+    } catch (Throwable $e) {
+        echo "\n✗ FATAL ERROR: " . $e->getMessage() . "\n";
+        echo "File: " . $e->getFile() . " (Line: " . $e->getLine() . ")\n";
+        echo "Stack Trace:\n" . $e->getTraceAsString();
     }
     exit;
 }
