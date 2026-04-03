@@ -7,9 +7,8 @@ $slug = $params['slug'] ?? '';
 $listing = db_row("SELECT * FROM listings WHERE slug = ? AND status = 'active'", [$slug]);
 
 if (!$listing) {
-    http_response_code(404);
-    echo render_page('errors/404', ['title' => 'Listing Not Found']);
-    exit;
+    flash('error', 'The listing you are trying to claim was not found. Please Search for your business below.');
+    redirect('/directory');
 }
 
 // Ensure listing isn't already claimed
