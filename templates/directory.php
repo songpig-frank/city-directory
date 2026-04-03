@@ -6,10 +6,11 @@
         </div>
 
         <!-- Type Filter -->
-        <div style="display:flex;justify-content:center;gap:var(--space-3);margin-bottom:var(--space-8);">
+        <div style="display:flex;justify-content:center;gap:var(--space-3);margin-bottom:var(--space-8);flex-wrap:wrap;">
             <a href="/directory" class="btn <?= !$type_filter ? 'btn-primary' : 'btn-ghost' ?>">All</a>
             <a href="/directory?type=business" class="btn <?= $type_filter === 'business' ? 'btn-primary' : 'btn-ghost' ?>" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="store" style="width:16px;height:16px;"></i> <?= __('submit_type_business') ?></a>
             <a href="/directory?type=tourism" class="btn <?= $type_filter === 'tourism' ? 'btn-primary' : 'btn-ghost' ?>" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="mountain" style="width:16px;height:16px;"></i> <?= __('submit_type_tourism') ?></a>
+            <a href="/directory?type=creator" class="btn <?= $type_filter === 'creator' ? 'btn-primary' : 'btn-ghost' ?>" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="video" style="width:16px;height:16px;"></i> Creators</a>
         </div>
 
         <!-- Category Sidebar + Listings -->
@@ -44,9 +45,15 @@
                             <?php if ($item['primary_image']): ?>
                             <img src="<?= $item['primary_image'] ?>" alt="<?= clean($item['name']) ?>" loading="lazy">
                             <?php else: ?>
-                            <div style="width:100%;height:100%;background:linear-gradient(135deg,var(--primary-100),var(--primary-200));display:flex;align-items:center;justify-content:center;font-size:3rem;">
-                                <i data-lucide="<?= $item['category_icon'] ?? 'map-pin' ?>"></i>
-                            </div>
+                            <?php
+                                $placeholder_map = [
+                                    'business' => '/assets/img/placeholders/business.png',
+                                    'tourism'  => '/assets/img/placeholders/tourism.png',
+                                    'creator'  => '/assets/img/placeholders/creator.png',
+                                ];
+                                $ph = $placeholder_map[$item['type']] ?? $placeholder_map['business'];
+                            ?>
+                            <img src="<?= $ph ?>" alt="<?= clean($item['name']) ?>" loading="lazy" style="object-fit:cover;">
                             <?php endif; ?>
                         </div>
                         <div class="card-body">

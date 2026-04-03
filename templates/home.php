@@ -56,9 +56,15 @@
                     <?php if ($item['primary_image']): ?>
                     <img src="<?= $item['primary_image'] ?>" alt="<?= clean($item['name']) ?>" loading="lazy">
                     <?php else: ?>
-                    <div style="width:100%;height:100%;background:linear-gradient(135deg,var(--primary-100),var(--primary-200));display:flex;align-items:center;justify-content:center;font-size:3rem;">
-                        <i data-lucide="<?= $item['category_icon'] ?? 'map-pin' ?>"></i>
-                    </div>
+                    <?php
+                        $placeholder_map = [
+                            'business' => '/assets/img/placeholders/business.png',
+                            'tourism'  => '/assets/img/placeholders/tourism.png',
+                            'creator'  => '/assets/img/placeholders/creator.png',
+                        ];
+                        $ph = $placeholder_map[$item['type']] ?? $placeholder_map['business'];
+                    ?>
+                    <img src="<?= $ph ?>" alt="<?= clean($item['name']) ?>" loading="lazy" style="object-fit:cover;">
                     <?php endif; ?>
                 </div>
                 <div class="card-body">

@@ -16,39 +16,55 @@ if (php_sapi_name() !== 'cli' && ($_GET['key'] ?? '') !== $secret_key) {
 $pdo = db();
 echo "<pre>=== Adding Real Tampakan Entries ===\n\n";
 
+// ── Step 0: Fix any creators that got placed in wrong category ──
+$correct_creator_cat = $pdo->query("SELECT id FROM categories WHERE slug = 'creative-vloggers'")->fetchColumn();
+if ($correct_creator_cat) {
+    $fixed = $pdo->prepare("UPDATE listings SET category_id = ? WHERE type = 'creator' AND category_id != ?");
+    $fixed->execute([$correct_creator_cat, $correct_creator_cat]);
+    $count = $fixed->rowCount();
+    if ($count > 0) {
+        echo "🔧 Fixed {$count} creator(s) moved to correct category (Creative Content & Vloggers)\n\n";
+    }
+} else {
+    echo "⚠ Warning: 'creative-vloggers' category not found. Creators may be miscategorized.\n\n";
+    $correct_creator_cat = 1; // fallback
+}
+
+// ── Category lookups ──
+function get_cat_id($slug, $pdo) {
+    $id = $pdo->query("SELECT id FROM categories WHERE slug = '{$slug}'")->fetchColumn();
+    return $id ?: 1;
+}
+
+$cat_resto  = get_cat_id('restaurants-eateries', $pdo);
+$cat_cafe   = get_cat_id('cafes-milk-tea', $pdo);
+$cat_tour   = get_cat_id('view-decks-scenic', $pdo);
+$cat_nature = get_cat_id('parks-nature', $pdo);
+$cat_resort = get_cat_id('springs-resorts', $pdo);
+
 $cols = 'category_id,owner_id,type,name,slug,description,address,barangay,city,province,lat,lng,phone,facebook,status,is_featured,is_spotlight';
 $placeholders = implode(',', array_fill(0, 17, '?'));
 $stmt = $pdo->prepare("INSERT INTO listings ({$cols}) VALUES ({$placeholders})");
 
-function get_cat_id($slug, $pdo) {
-    $id = $pdo->query("SELECT id FROM categories WHERE slug = '$slug'")->fetchColumn();
-    return $id ?: 1; // fallback to 1
-}
-
-$cat_resto = get_cat_id('restaurants-cafes', $pdo);
-$cat_tour = get_cat_id('natural-attractions', $pdo);
-$cat_resort = get_cat_id('springs-resorts', $pdo);
-$cat_creator = get_cat_id('vloggers', $pdo) ?: get_cat_id('creators', $pdo) ?: 1; 
-
 $entries = [
     // ── CREATORS ──────────────────────────────────────────────────
     [
-        'cat' => $cat_creator, 'type' => 'creator', 'name' => 'Tampakan Content Creators', 'slug' => 'tampakan-content-creators',
+        'cat' => $correct_creator_cat, 'type' => 'creator', 'name' => 'Tampakan Content Creators', 'slug' => 'tampakan-content-creators',
         'desc' => "Official Facebook page for Tampakan Content Creators. Highlighting the collective creativity of our local digital talents.",
         'fb' => 'https://www.facebook.com/profile.php?id=61576653280424'
     ],
     [
-        'cat' => $cat_creator, 'type' => 'creator', 'name' => 'Gerame M. Paquera (Kuya Ram)', 'slug' => 'gerame-m-paquera',
+        'cat' => $correct_creator_cat, 'type' => 'creator', 'name' => 'Gerame M. Paquera (Kuya Ram)', 'slug' => 'gerame-m-paquera',
         'desc' => "Tampakan community vlogger and content creator. Showcasing the beauty of Tampakan, its people, and culture.",
-        'fb' => 'https://www.facebook.com/profile.php?id=100063625442544' // Kuya Ram Facebook
+        'fb' => 'https://www.facebook.com/profile.php?id=100063625442544'
     ],
     [
-        'cat' => $cat_creator, 'type' => 'creator', 'name' => 'Toto Mondragon Belleza', 'slug' => 'toto-mondragon-belleza',
+        'cat' => $correct_creator_cat, 'type' => 'creator', 'name' => 'Toto Mondragon Belleza', 'slug' => 'toto-mondragon-belleza',
         'desc' => "Local public figure and community creator sharing the everyday life and vibrant spirit of Tampakan, South Cotabato.",
         'fb' => 'https://www.facebook.com/toto.mondragon.belleza'
     ],
     [
-        'cat' => $cat_creator, 'type' => 'creator', 'name' => 'Connie Tabano', 'slug' => 'connie-tabano',
+        'cat' => $correct_creator_cat, 'type' => 'creator', 'name' => 'Connie Tabano', 'slug' => 'connie-tabano',
         'desc' => "Tampakan personality and creator connecting the community through engaging posts, stories, and local updates.",
         'fb' => 'https://www.facebook.com/jhocontabanoadto27'
     ],
@@ -73,11 +89,11 @@ $entries = [
     // ── TOURISM & ATTRACTIONS ──────────────────────────────────────
     [
         'cat' => $cat_tour, 'type' => 'tourism', 'name' => 'Kalon Barak Skyline Ridge', 'slug' => 'kalon-barak',
-        'desc' => "Breathtaking level views and the legendary sea of clouds. South Cotabato's pride.",
+        'desc' => "Breathtaking elevated views and the legendary sea of clouds. South Cotabato's pride.",
         'fb' => ''
     ],
     [
-        'cat' => $cat_tour, 'type' => 'tourism', 'name' => 'Kolondatal Nature Park', 'slug' => 'kolondatal-nature-park',
+        'cat' => $cat_nature, 'type' => 'tourism', 'name' => 'Kolondatal Nature Park', 'slug' => 'kolondatal-nature-park',
         'desc' => "Escape the heat and enjoy the lush green mountains and hiking trails.",
         'fb' => ''
     ],
@@ -93,22 +109,22 @@ foreach ($entries as $e) {
     if (!$exists) {
         $stmt->execute([
             $e['cat'],
-            null, // owner_id
+            null,
             $e['type'],
             $e['name'],
             $e['slug'],
-            $e['desc'], // description
-            'Tampakan', // address
-            null, // barangay
-            'Tampakan', // city
-            'South Cotabato', // province
-            '6.4283', // lat
-            '124.9478', // lng
-            null, // phone
-            $e['fb'] ?? '', // facebook
-            'active', // status
-            1, // is_featured
-            1  // is_spotlight
+            $e['desc'],
+            'Tampakan',
+            null,
+            'Tampakan',
+            'South Cotabato',
+            '6.4283',
+            '124.9478',
+            null,
+            $e['fb'] ?? '',
+            'active',
+            1,
+            1
         ]);
         echo "✓ Added: {$e['name']}\n";
     } else {
@@ -116,4 +132,4 @@ foreach ($entries as $e) {
     }
 }
 
-echo "\n✓ Success! Visit the homepage to see your entries.\n</pre>";
+echo "\n✓ Done! Visit the homepage to see your entries.\n</pre>";
