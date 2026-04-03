@@ -240,14 +240,16 @@ if (isset($_GET['sweep']) && $_GET['sweep'] === 'tpk2026init') {
         }
 
         // ── Admin User ────────────────────────────────────────────
-        $admin_exists = $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'admin'")->fetchColumn();
+        $hash = password_hash('Tampakan$Admin2026', PASSWORD_BCRYPT, ['cost' => 12]);
+        $pdo->prepare("UPDATE users SET password_hash = ? WHERE email = 'admin@tampakan.com'")->execute([$hash]);
+
+        $admin_exists = $pdo->query("SELECT COUNT(*) FROM users WHERE email = 'admin@tampakan.com'")->fetchColumn();
         if (!$admin_exists) {
-            $hash = password_hash('admin123', PASSWORD_BCRYPT, ['cost' => 12]);
             $pdo->prepare("INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)")
                 ->execute(['Admin', 'admin@tampakan.com', $hash, 'admin']);
-            echo "[OK] Admin user created (admin@tampakan.com / admin123)\n";
+            echo "[OK] Admin user created (admin@tampakan.com / Tampakan\$Admin2026)\n";
         } else {
-            echo "[SKIP] Admin user already exists\n";
+            echo "[OK] Admin user password securely upgraded to Tampakan\$Admin2026\n";
         }
 
         // ── Verify ────────────────────────────────────────────────
@@ -256,7 +258,7 @@ if (isset($_GET['sweep']) && $_GET['sweep'] === 'tpk2026init') {
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) { $tables[] = $row['name']; }
         echo "\n[TABLES] " . implode(', ', $tables) . "\n";
         echo "\n=== SETUP COMPLETE ===\n";
-        echo "Next: Log in at /login with admin@tampakan.com / admin123\n";
+        echo "Next: Log in at /login with admin@tampakan.com / Tampakan\$Admin2026\n";
         echo "Then: Remove or change the sweep key in index.php for security.\n";
 
     } catch (Exception $e) {
