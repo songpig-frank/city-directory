@@ -8,7 +8,7 @@ $id = $params['id'] ?? null;
 $post = null;
 
 if ($id && $id !== 'new') {
-    $post = db_row("SELECT * FROM blog_posts WHERE id = ?", [$id]);
+    $post = db_row("SELECT * FROM posts WHERE id = ?", [$id]);
 }
 
 $title = ($post ? 'Edit Post' : 'New Post') . ' - Admin';

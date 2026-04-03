@@ -30,14 +30,14 @@ if (empty($slug)) {
 if ($id > 0) {
     // Update
     db_execute(
-        "UPDATE blog_posts SET title = ?, slug = ?, content = ?, excerpt = ?, status = ?, featured_image = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+        "UPDATE posts SET title = ?, slug = ?, content = ?, excerpt = ?, status = ?, featured_image = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
         [$title, $slug, $content, $excerpt, $status, $featured_image, $id]
     );
     flash('success', 'Blog post updated.');
 } else {
     // Insert
     db_execute(
-        "INSERT INTO blog_posts (title, slug, content, excerpt, status, featured_image, author_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO posts (title, slug, content, excerpt, status, featured_image, author_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
         [$title, $slug, $content, $excerpt, $status, $featured_image, $_SESSION['user_id']]
     );
     flash('success', 'New blog post created.');

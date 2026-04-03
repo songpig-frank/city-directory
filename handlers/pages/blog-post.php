@@ -3,7 +3,7 @@
  * Public: Single Blog Post
  */
 $slug = $params['slug'] ?? '';
-$post = db_row("SELECT * FROM blog_posts WHERE slug = ? AND status = 'published'", [$slug]);
+$post = db_row("SELECT * FROM posts WHERE slug = ? AND status = 'published'", [$slug]);
 
 if (!$post) {
     http_response_code(404);

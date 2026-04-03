@@ -4,7 +4,7 @@
  */
 auth_require('admin');
 
-$posts = db_query("SELECT * FROM blog_posts ORDER BY created_at DESC");
+$posts = db_query("SELECT * FROM posts ORDER BY created_at DESC");
 
 $title = 'Blog Management - Admin';
 $content = render('admin/blog', [

@@ -16,7 +16,7 @@ if (!csrf_validate()) {
 }
 
 $id = (int)($_POST['id'] ?? 0);
-db_execute("DELETE FROM blog_posts WHERE id = ?", [$id]);
+db_execute("DELETE FROM posts WHERE id = ?", [$id]);
 
 flash('success', 'Blog post deleted permanently.');
 header('Location: /admin/blog');
