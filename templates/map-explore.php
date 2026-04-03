@@ -11,7 +11,6 @@
                 <button class="btn btn-ghost btn-xs filter-btn active" data-type="">All</button>
                 <button class="btn btn-ghost btn-xs filter-btn" data-type="business">Business</button>
                 <button class="btn btn-ghost btn-xs filter-btn" data-type="tourism">Tourism</button>
-                <button class="btn btn-ghost btn-xs filter-btn" data-type="creator">Creators</button>
             </div>
         </div>
 
@@ -73,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function fetchData(type = '') {
         try {
-            const response = await fetch(`/api/listings?limit=50&type=${type}`);
+            const response = await fetch(`/api/listings?limit=50&type=${type}&exclude_type=creator`);
             const result = await response.json();
             if (result.success) {
                 renderListings(result.data);

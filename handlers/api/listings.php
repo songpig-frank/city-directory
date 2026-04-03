@@ -17,9 +17,16 @@ $query = "SELECT l.*, c.name as category_name, c.icon as category_icon,
           WHERE l.status = 'active'";
 $params = [];
 
+$exclude_type = $_GET['exclude_type'] ?? '';
+
 if ($type) {
     $query .= " AND l.type = ?";
     $params[] = $type;
+}
+
+if ($exclude_type) {
+    $query .= " AND l.type != ?";
+    $params[] = $exclude_type;
 }
 
 if ($category) {
