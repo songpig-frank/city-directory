@@ -3,9 +3,9 @@
  * Add Real Tampakan Businesses and Content Creators
  * Secure: Requires admin privileges.
  */
-require_once __DIR__ . '/../includes/config-loader.php';
-require_once __DIR__ . '/../includes/auth.php';
-require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/includes/config-loader.php';
+require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/db.php';
 
 auth_require('admin');
 
