@@ -78,38 +78,44 @@ $entries = [
     [
         'cat' => $cat_resto, 'type' => 'business', 'name' => 'Kolon Cafe', 'slug' => 'kolon-cafe',
         'desc' => "Nestled in the mountains of Lampitak, Kolon Cafe offers an unforgettable experience with a sea of clouds and delicious coffee. A must-visit Instagrammable spot in Tampakan!",
-        'fb' => ''
+        'fb' => '', 'lat' => '6.4359', 'lng' => '124.9990', 'brgy' => 'Lampitak'
     ],
     [
         'cat' => $cat_resto, 'type' => 'business', 'name' => "Santa's Clubhouse", 'slug' => 'santas-clubhouse',
         'desc' => "A widely recognized local dining establishment featuring great food and a welcoming atmosphere.",
-        'fb' => ''
+        'fb' => '', 'lat' => '6.4437', 'lng' => '124.9269', 'brgy' => 'Poblacion'
     ],
     [
         'cat' => $cat_resto, 'type' => 'business', 'name' => "Highway Star Grill", 'slug' => 'highway-star-grill',
         'desc' => "Filipino and Asian fusion, fast food, and nightcap drinks. A highway favorite!",
-        'fb' => ''
+        'fb' => '', 'lat' => '6.4520', 'lng' => '124.9350', 'brgy' => 'Tampakan'
     ],
 
     // ── TOURISM & ATTRACTIONS ──────────────────────────────────────
     [
         'cat' => $cat_tour, 'type' => 'tourism', 'name' => 'Kalon Barak Skyline Ridge', 'slug' => 'kalon-barak',
         'desc' => "Breathtaking elevated views and the legendary sea of clouds. South Cotabato's pride.",
-        'fb' => ''
+        'fb' => '', 'lat' => '6.3764', 'lng' => '125.2720', 'brgy' => 'Malungon'
     ],
     [
         'cat' => $cat_nature, 'type' => 'tourism', 'name' => 'Kolondatal Nature Park', 'slug' => 'kolondatal-nature-park',
         'desc' => "Escape the heat and enjoy the lush green mountains and hiking trails.",
-        'fb' => ''
+        'fb' => '', 'lat' => '6.4300', 'lng' => '125.0100', 'brgy' => 'Lampitak'
     ],
     [
         'cat' => $cat_resort, 'type' => 'tourism', 'name' => 'Taniongon Spring Resort', 'slug' => 'taniongon-spring-resort',
         'desc' => "Cool mountain spring water in public and private pools. Perfect for family outings.",
-        'fb' => ''
+        'fb' => '', 'lat' => '6.3313', 'lng' => '124.9511', 'brgy' => 'Tupi'
     ],
 ];
 
 foreach ($entries as $e) {
+    if ($e['type'] === 'creator') {
+        $e['lat'] = null;
+        $e['lng'] = null;
+        $e['brgy'] = 'Tampakan';
+    }
+
     $exists = $pdo->query("SELECT COUNT(*) FROM listings WHERE slug = '{$e['slug']}'")->fetchColumn();
     if (!$exists) {
         $stmt->execute([
@@ -119,13 +125,12 @@ foreach ($entries as $e) {
             $e['name'],
             $e['slug'],
             $e['desc'],
-            'Tampakan',
+            $e['brgy'],
             null,
             'Tampakan',
             'South Cotabato',
-            // Scatter coordinates by up to 500 meters from center
-            (string)(6.4283 + (mt_rand(-50, 50) / 10000)),
-            (string)(124.9478 + (mt_rand(-50, 50) / 10000)),
+            $e['lat'],
+            $e['lng'],
             null,
             $e['fb'] ?? '',
             'active',
@@ -134,7 +139,10 @@ foreach ($entries as $e) {
         ]);
         echo "✓ Added: {$e['name']}\n";
     } else {
-        echo "⊘ Skipping: {$e['name']} (Already exists)\n";
+        // Automatically sync correct real coordinates for existing seeds
+        $update = $pdo->prepare("UPDATE listings SET lat=?, lng=?, barangay=? WHERE slug=?");
+        $update->execute([$e['lat'], $e['lng'], $e['brgy'], $e['slug']]);
+        echo "↺ Synced coordinates: {$e['name']}\n";
     }
 }
 
