@@ -1,4 +1,6 @@
 <?php
+ini_set("display_errors", 1);
+error_reporting(E_ALL);
 /**
  * CityDirectory — Front Controller / Router
  * All requests are routed through this file via .htaccess
