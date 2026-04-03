@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS users (
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    role TEXT DEFAULT 'owner',
+    role TEXT DEFAULT 'user',
     avatar TEXT,
     bio TEXT,
     phone TEXT,

@@ -32,7 +32,7 @@ if (isset($_GET['sweep']) && $_GET['sweep'] === 'tpk2026init') {
                 name TEXT NOT NULL,
                 email TEXT UNIQUE NOT NULL,
                 password_hash TEXT NOT NULL,
-                role TEXT DEFAULT 'owner',
+                role TEXT DEFAULT 'user',
                 avatar TEXT,
                 bio TEXT,
                 phone TEXT,
