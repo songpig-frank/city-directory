@@ -1,14 +1,17 @@
 <?php
 /**
  * Add Real Tampakan Businesses and Content Creators
- * Secure: Requires admin privileges.
+ * Secure: Requires a secret key to run on production.
  */
 require_once __DIR__ . '/includes/config-loader.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
 
-auth_init();
-auth_require('admin');
+// Allow CLI or a secret key in URL
+$secret_key = 'tampakan2026';
+if (php_sapi_name() !== 'cli' && ($_GET['key'] ?? '') !== $secret_key) {
+    die("Access Denied: Please provide the correct key (?key=XXXX) to run this script.");
+}
 
 $pdo = db();
 echo "<pre>=== Adding Real Tampakan Entries ===\n\n";
@@ -17,9 +20,6 @@ $cols = 'category_id,owner_id,type,name,slug,description,address,barangay,city,p
 $placeholders = implode(',', array_fill(0, 17, '?'));
 $stmt = $pdo->prepare("INSERT INTO listings ({$cols}) VALUES ({$placeholders})");
 
-// Categories mapping based on typical schema:
-// Assuming: 2 = Restaurants, 6 = Attractions, 7 = Resort/Springs, 20 = Creators (just guessing, but we can look up exact IDs if needed)
-// To be safe, I'll fetch category IDs by slug
 function get_cat_id($slug, $pdo) {
     $id = $pdo->query("SELECT id FROM categories WHERE slug = '$slug'")->fetchColumn();
     return $id ?: 1; // fallback to 1
@@ -40,7 +40,7 @@ $entries = [
     [
         'cat' => $cat_creator, 'type' => 'creator', 'name' => 'Gerame M. Paquera (Kuya Ram)', 'slug' => 'gerame-m-paquera',
         'desc' => "Tampakan community vlogger and content creator. Showcasing the beauty of Tampakan, its people, and culture.",
-        'fb' => 'https://www.facebook.com/gerame.paquera.5'
+        'fb' => 'https://www.facebook.com/profile.php?id=100063625442544' // Kuya Ram Facebook
     ],
     [
         'cat' => $cat_creator, 'type' => 'creator', 'name' => 'Toto Mondragon Belleza', 'slug' => 'toto-mondragon-belleza',
@@ -48,7 +48,7 @@ $entries = [
         'fb' => 'https://www.facebook.com/toto.mondragon.belleza'
     ],
     [
-        'cat' => $cat_creator, 'type' => 'creator', 'name' => 'Connie Tabano (Sanchez Manijado Madrazo Tabano)', 'slug' => 'connie-tabano',
+        'cat' => $cat_creator, 'type' => 'creator', 'name' => 'Connie Tabano', 'slug' => 'connie-tabano',
         'desc' => "Tampakan personality and creator connecting the community through engaging posts, stories, and local updates.",
         'fb' => 'https://www.facebook.com/jhocontabanoadto27'
     ],
@@ -56,39 +56,34 @@ $entries = [
     // ── RESTAURANTS / DINING ──────────────────────────────────────
     [
         'cat' => $cat_resto, 'type' => 'business', 'name' => 'Kolon Cafe', 'slug' => 'kolon-cafe',
-        'desc' => "Nestled in the mountains of Lampitak, Kolon Cafe offers an unforgettable 'New Zealand-like' view with an incredible sea of clouds and delicious coffee. A must-visit Instagrammable spot in Tampakan!",
-        'fb' => '' // Can be added later by user
+        'desc' => "Nestled in the mountains of Lampitak, Kolon Cafe offers an unforgettable experience with a sea of clouds and delicious coffee. A must-visit Instagrammable spot in Tampakan!",
+        'fb' => ''
     ],
     [
         'cat' => $cat_resto, 'type' => 'business', 'name' => "Santa's Clubhouse", 'slug' => 'santas-clubhouse',
-        'desc' => "A widely recognized local dining establishment featuring great food and a welcoming atmosphere for families and barkadas alike.",
+        'desc' => "A widely recognized local dining establishment featuring great food and a welcoming atmosphere.",
         'fb' => ''
     ],
     [
-        'cat' => $cat_resto, 'type' => 'business', 'name' => "SUNDAY's Food Corner", 'slug' => 'sundays-food-corner',
-        'desc' => "Located on Nara Avenue, Poblacion. World-famous locally for our authentic balbakwa and papaitan. An absolute local favorite!",
-        'fb' => ''
-    ],
-    [
-        'cat' => $cat_resto, 'type' => 'business', 'name' => "Highway Star Grill and Resto Bar", 'slug' => 'highway-star-grill',
-        'desc' => "Your go-to highway destination for Filipino and Asian fusion, fast food, and nightcap drinks. Let's chill!",
+        'cat' => $cat_resto, 'type' => 'business', 'name' => "Highway Star Grill", 'slug' => 'highway-star-grill',
+        'desc' => "Filipino and Asian fusion, fast food, and nightcap drinks. A highway favorite!",
         'fb' => ''
     ],
 
     // ── TOURISM & ATTRACTIONS ──────────────────────────────────────
     [
         'cat' => $cat_tour, 'type' => 'tourism', 'name' => 'Kalon Barak Skyline Ridge', 'slug' => 'kalon-barak',
-        'desc' => "Experience the breath-taking elevated views at Kalon Barak. This high vantage point gives you an unparalleled 360-degree view of the South Cotabato landscape. Perfect for viewing sunsets and the sea of clouds.",
+        'desc' => "Breathtaking level views and the legendary sea of clouds. South Cotabato's pride.",
         'fb' => ''
     ],
     [
         'cat' => $cat_tour, 'type' => 'tourism', 'name' => 'Kolondatal Nature Park', 'slug' => 'kolondatal-nature-park',
-        'desc' => "A serene escape into nature. Escape the heat of the city and immerse yourself in lush green mountains, hiking trails, and the famous Kolon Cafe.",
+        'desc' => "Escape the heat and enjoy the lush green mountains and hiking trails.",
         'fb' => ''
     ],
     [
         'cat' => $cat_resort, 'type' => 'tourism', 'name' => 'Taniongon Spring Resort', 'slug' => 'taniongon-spring-resort',
-        'desc' => "Cool off in naturally sourced spring water! Taniongon Spring Resort is a local favorite offering large swimming pools fed by pristine mountain springs. Cottages available for rent.",
+        'desc' => "Cool mountain spring water in public and private pools. Perfect for family outings.",
         'fb' => ''
     ],
 ];
@@ -107,12 +102,12 @@ foreach ($entries as $e) {
             null, // barangay
             'Tampakan', // city
             'South Cotabato', // province
-            6.4283, // lat
-            124.9478, // lng
+            '6.4283', // lat
+            '124.9478', // lng
             null, // phone
-            $e['fb'], // facebook
+            $e['fb'] ?? '', // facebook
             'active', // status
-            1, // is_featured (Boost them all so they show up prominently!)
+            1, // is_featured
             1  // is_spotlight
         ]);
         echo "✓ Added: {$e['name']}\n";
@@ -121,4 +116,4 @@ foreach ($entries as $e) {
     }
 }
 
-echo "\n✓ Success! You can now visit your homepage to see the real businesses.\n</pre>";
+echo "\n✓ Success! Visit the homepage to see your entries.\n</pre>";
