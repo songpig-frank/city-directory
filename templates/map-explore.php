@@ -99,6 +99,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear old markers
         Object.values(markers).forEach(m => map.removeLayer(m));
         markers = {};
+        
+        const bounds = L.latLngBounds();
 
         data.forEach((item, index) => {
             const letter = String.fromCharCode(65 + index);
@@ -140,6 +142,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const lat = parseFloat(item.lat || (initialLat + (Math.random() - 0.5) * 0.04));
                 const lng = parseFloat(item.lng || (initialLng + (Math.random() - 0.5) * 0.04));
                 
+                bounds.extend([lat, lng]);
+                
                 const customIcon = L.divIcon({
                     html: `<div class="marker-label">${letter}</div>`,
                     className: 'custom-div-icon',
@@ -170,6 +174,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 markers[item.id] = marker;
             }
         });
+
+        // Fit map bounds to the new markers
+        if (bounds.isValid()) {
+            map.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 });
+        } else {
+            // Fallback to center if no markers
+            map.setView([initialLat, initialLng], 14);
+        }
 
         if (!document.getElementById('stars-css')) {
             const style = document.createElement('style');
