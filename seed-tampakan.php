@@ -7,6 +7,7 @@ require_once __DIR__ . '/includes/config-loader.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
 
+auth_init();
 auth_require('admin');
 
 $pdo = db();
