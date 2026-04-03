@@ -57,6 +57,9 @@ $categories = [
     ['Caves & Adventures',      'caves-adventures',      'tourism', '⛰️', 6, true, true],
     ['Cultural & Heritage',     'cultural-heritage',     'tourism', '🏛️', 7, true, true],
     ['Food Tours',              'food-tours',            'tourism', '🍢', 8, true, true],
+
+    // Community / Creators
+    ['Creative Content & Vloggers','creative-vloggers',  'creator', '📹', 1, true, true],
 ];
 
 // column indexes: 0=name, 1=slug, 2=type, 3=icon, 4=sort, 5=tampakan, 6=gensan

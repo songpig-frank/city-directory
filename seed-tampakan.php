@@ -18,6 +18,14 @@ echo "<pre>=== Adding Real Tampakan Entries ===\n\n";
 
 // ── Step 0: Fix any creators that got placed in wrong category ──
 $correct_creator_cat = $pdo->query("SELECT id FROM categories WHERE slug = 'creative-vloggers'")->fetchColumn();
+if (!$correct_creator_cat) {
+    echo "🔧 Creating missing 'creative-vloggers' category... ";
+    $stmt_cat = $pdo->prepare("INSERT INTO categories (name, slug, type, icon, sort_order, is_active) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt_cat->execute(['Creative Content & Vloggers', 'creative-vloggers', 'creator', 'video', 1, 1]);
+    $correct_creator_cat = $pdo->lastInsertId();
+    echo "Done.\n\n";
+}
+
 if ($correct_creator_cat) {
     $fixed = $pdo->prepare("UPDATE listings SET category_id = ? WHERE type = 'creator' AND category_id != ?");
     $fixed->execute([$correct_creator_cat, $correct_creator_cat]);
@@ -25,9 +33,6 @@ if ($correct_creator_cat) {
     if ($count > 0) {
         echo "🔧 Fixed {$count} creator(s) moved to correct category (Creative Content & Vloggers)\n\n";
     }
-} else {
-    echo "⚠ Warning: 'creative-vloggers' category not found. Creators may be miscategorized.\n\n";
-    $correct_creator_cat = 1; // fallback
 }
 
 // ── Category lookups ──
