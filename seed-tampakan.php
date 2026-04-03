@@ -123,8 +123,9 @@ foreach ($entries as $e) {
             null,
             'Tampakan',
             'South Cotabato',
-            '6.4283',
-            '124.9478',
+            // Scatter coordinates by up to 500 meters from center
+            (string)(6.4283 + (mt_rand(-50, 50) / 10000)),
+            (string)(124.9478 + (mt_rand(-50, 50) / 10000)),
             null,
             $e['fb'] ?? '',
             'active',

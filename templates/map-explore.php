@@ -139,8 +139,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Add Marker (Only if not a creator AND has coordinates)
             if (!isCreator && (item.lat || item.lng)) {
-                const lat = parseFloat(item.lat || (initialLat + (Math.random() - 0.5) * 0.04));
-                const lng = parseFloat(item.lng || (initialLng + (Math.random() - 0.5) * 0.04));
+                // Apply a small jitter (~50 meters) to prevent perfectly stacked markers from hiding each other
+                const lat = parseFloat(item.lat || initialLat) + (Math.random() - 0.5) * 0.0008;
+                const lng = parseFloat(item.lng || initialLng) + (Math.random() - 0.5) * 0.0008;
                 
                 bounds.extend([lat, lng]);
                 
