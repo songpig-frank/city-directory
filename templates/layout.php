@@ -8,7 +8,7 @@
     <!-- SEO -->
     <title><?= clean($title ?? config('site_name')) ?></title>
     <meta name="description" content="<?= clean($meta_description ?? config('description')) ?>">
-    <meta name="robots" content="index, follow">
+    <meta name="robots" content="noindex, nofollow, noarchive">
     <link rel="canonical" href="<?= $canonical ?? base_url($_SERVER['REQUEST_URI']) ?>">
 
     <!-- OpenGraph / Social -->

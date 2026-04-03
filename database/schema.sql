@@ -172,7 +172,7 @@ CREATE TABLE IF NOT EXISTS `reviews` (
     `comment` TEXT DEFAULT NULL,
     `is_approved` TINYINT(1) NOT NULL DEFAULT 0,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (`listing_id`) REFERENCES `reviews`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`listing_id`) REFERENCES `listings`(`id`) ON DELETE CASCADE,
     INDEX `idx_listing` (`listing_id`, `is_approved`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

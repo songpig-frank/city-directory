@@ -14,11 +14,9 @@ RewriteCond %{REQUEST_URI} !^/clean-sweep\.php$
 # Route everything through index.php
 RewriteRule ^(.*)$ index.php [QSA,L]
 
-# Security: block access to sensitive files
-<FilesMatch "\.(php|sql|log|md)$">
-    <If "%{REQUEST_URI} !~ m#^/(index\.php|clean-sweep\.php)?$#">
-        # Allow index.php and clean-sweep.php, block all other .php files
-    </If>
+# Security: block direct access to .php files (except index.php)
+<FilesMatch "\.(sql|log|md|sqlite|db)$">
+    Require all denied
 </FilesMatch>
 
 # Block access to hidden files and directories

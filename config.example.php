@@ -79,11 +79,17 @@ return [
     ],
 
     // ── Database ───────────────────────────────────────────────────
-    'db_host'   => 'localhost',
-    'db_name'   => 'citydirectory',
-    'db_user'   => 'root',
-    'db_pass'   => '',
-    'db_charset'=> 'utf8mb4',
+    // For SQLite (recommended for single-server deployments):
+    'db_driver' => 'sqlite',
+    'db_path'   => __DIR__ . '/database/app.sqlite',
+
+    // For MySQL (uncomment and fill in if using MySQL):
+    // 'db_driver'  => 'mysql',
+    // 'db_host'    => 'localhost',
+    // 'db_name'    => 'citydirectory',
+    // 'db_user'    => 'root',
+    // 'db_pass'    => '',
+    // 'db_charset' => 'utf8mb4',
 
     // ── Email ──────────────────────────────────────────────────────
     'admin_email'   => 'admin@tampakan.com',

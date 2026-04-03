@@ -4,41 +4,264 @@
  * All requests are routed through this file via .htaccess
  */
 
-// ── SELF-SUSTAINING RESCUE HOOK ────────────────────────────────────
-if (isset($_GET['sweep']) && $_GET['sweep'] === 'now') {
+// ── Production Setup Sweep ────────────────────────────────────────
+// Visit ?sweep=SECRETKEY to initialize the full database on a fresh server.
+// IMPORTANT: Change this key or remove this block after setup is complete.
+if (isset($_GET['sweep']) && $_GET['sweep'] === 'tpk2026init') {
     ini_set('display_errors', 1);
     error_reporting(E_ALL);
-    echo "<pre style='background:#111; color:#0f0; padding:20px; font-family:monospace;'>";
-    echo "=== Tampakan Legacy-Compatible Sweep Started ===\n";
-    echo "PHP Version: " . phpversion() . "\n";
-    
+    header('Content-Type: text/plain; charset=utf-8');
+    echo "=== Tampakan Directory — Full Production Setup ===\n";
+    echo "PHP Version: " . phpversion() . "\n\n";
+
     try {
-        // Driver Check
-        $drivers = class_exists('PDO') ? PDO::getAvailableDrivers() : [];
-        echo "✓ Drivers: " . implode(', ', $drivers) . "\n";
-        
         $db_file = __DIR__ . '/database/app.sqlite';
-        $dsn = "sqlite:" . $db_file;
-        $pdo = new PDO($dsn);
+        $db_dir = dirname($db_file);
+        if (!is_dir($db_dir)) { mkdir($db_dir, 0755, true); }
+
+        $pdo = new PDO("sqlite:" . $db_file);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        echo "✓ Database Connected ($db_file)\n";
+        $pdo->exec('PRAGMA journal_mode=WAL');
+        $pdo->exec('PRAGMA foreign_keys=ON');
+        echo "[OK] Database connected: $db_file\n";
 
-        // Minimal Schema
-        $pdo->exec("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, email TEXT UNIQUE, password TEXT, role TEXT)");
-        $pdo->exec("CREATE TABLE IF NOT EXISTS listings (id INTEGER PRIMARY KEY, title TEXT, slug TEXT UNIQUE)");
-        $pdo->exec("CREATE TABLE IF NOT EXISTS site_settings (setting_key TEXT PRIMARY KEY, setting_value TEXT)");
-        echo "✓ Core Tables Verified/Created\n";
+        // ── Full Schema (matches setup-local.php exactly) ─────────
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                role TEXT DEFAULT 'owner',
+                avatar TEXT,
+                bio TEXT,
+                phone TEXT,
+                social_links TEXT,
+                is_active INTEGER DEFAULT 1,
+                last_login TEXT,
+                created_at TEXT DEFAULT (datetime('now')),
+                updated_at TEXT DEFAULT (datetime('now'))
+            );
 
-        $pass = password_hash('changeme123', PASSWORD_DEFAULT);
-        $stmt = $pdo->prepare("INSERT OR IGNORE INTO users (name, email, password, role) VALUES ('Admin', 'admin@tampakan.com', ?, 'admin')");
-        $stmt->execute(array($pass));
-        echo "✓ Admin User Verified/Created (admin@tampakan.com / changeme123)\n";
-        
-        echo "\n=== SUCCESS! Core Site is initialized. ===\n";
-        echo "Go to: <a href='/' style='color:#fff;'>Tampakan Home</a>";
+            CREATE TABLE IF NOT EXISTS categories (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                slug TEXT UNIQUE NOT NULL,
+                description TEXT,
+                type TEXT DEFAULT 'business',
+                icon TEXT,
+                sort_order INTEGER DEFAULT 0,
+                is_active INTEGER DEFAULT 1,
+                created_at TEXT DEFAULT (datetime('now'))
+            );
+
+            CREATE TABLE IF NOT EXISTS listings (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                category_id INTEGER NOT NULL,
+                owner_id INTEGER,
+                type TEXT DEFAULT 'business',
+                name TEXT NOT NULL,
+                slug TEXT UNIQUE NOT NULL,
+                description TEXT,
+                address TEXT,
+                barangay TEXT,
+                city TEXT,
+                province TEXT,
+                lat REAL,
+                lng REAL,
+                phone TEXT,
+                email TEXT,
+                website TEXT,
+                facebook TEXT,
+                instagram TEXT,
+                youtube TEXT,
+                tiktok TEXT,
+                hours TEXT,
+                shopee_link TEXT,
+                lazada_link TEXT,
+                amazon_link TEXT,
+                food_ordering_link TEXT,
+                property_type TEXT,
+                property_sqm REAL,
+                property_price REAL,
+                property_terms TEXT,
+                broker_license TEXT,
+                status TEXT DEFAULT 'active',
+                is_featured INTEGER DEFAULT 0,
+                is_spotlight INTEGER DEFAULT 0,
+                featured_until TEXT,
+                spotlight_until TEXT,
+                views INTEGER DEFAULT 0,
+                expires_at TEXT,
+                renewal_token TEXT,
+                created_at TEXT DEFAULT (datetime('now')),
+                updated_at TEXT DEFAULT (datetime('now'))
+            );
+
+            CREATE TABLE IF NOT EXISTS listing_images (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                listing_id INTEGER NOT NULL,
+                image_path TEXT NOT NULL,
+                alt_text TEXT,
+                is_primary INTEGER DEFAULT 0,
+                sort_order INTEGER DEFAULT 0,
+                created_at TEXT DEFAULT (datetime('now'))
+            );
+
+            CREATE TABLE IF NOT EXISTS reviews (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                listing_id INTEGER NOT NULL,
+                user_id INTEGER,
+                user_name TEXT NOT NULL,
+                user_email TEXT,
+                rating INTEGER NOT NULL DEFAULT 5,
+                comment TEXT,
+                is_approved INTEGER DEFAULT 0,
+                created_at TEXT DEFAULT (datetime('now'))
+            );
+
+            CREATE TABLE IF NOT EXISTS posts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                author_id INTEGER,
+                title TEXT NOT NULL,
+                slug TEXT UNIQUE NOT NULL,
+                excerpt TEXT,
+                body TEXT,
+                featured_image TEXT,
+                status TEXT DEFAULT 'draft',
+                published_at TEXT,
+                created_at TEXT DEFAULT (datetime('now')),
+                updated_at TEXT DEFAULT (datetime('now'))
+            );
+
+            CREATE TABLE IF NOT EXISTS promotions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                listing_id INTEGER NOT NULL,
+                type TEXT NOT NULL,
+                amount_paid REAL,
+                payment_method TEXT,
+                starts_at TEXT,
+                ends_at TEXT,
+                status TEXT DEFAULT 'active',
+                created_at TEXT DEFAULT (datetime('now'))
+            );
+
+            CREATE TABLE IF NOT EXISTS contact_messages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL,
+                subject TEXT,
+                message TEXT NOT NULL,
+                is_read INTEGER DEFAULT 0,
+                created_at TEXT DEFAULT (datetime('now'))
+            );
+
+            CREATE TABLE IF NOT EXISTS rate_limits (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ip_hash TEXT NOT NULL,
+                endpoint TEXT NOT NULL,
+                hits INTEGER DEFAULT 1,
+                window_start TEXT DEFAULT (datetime('now'))
+            );
+
+            CREATE TABLE IF NOT EXISTS analytics (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                listing_id INTEGER,
+                event_type TEXT NOT NULL,
+                ip_hash TEXT,
+                user_agent TEXT,
+                referrer TEXT,
+                created_at TEXT DEFAULT (datetime('now'))
+            );
+
+            CREATE TABLE IF NOT EXISTS site_settings (
+                setting_key VARCHAR(100) PRIMARY KEY,
+                setting_value TEXT,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS media (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                filename TEXT NOT NULL,
+                filepath TEXT NOT NULL,
+                file_type TEXT,
+                file_size INTEGER,
+                uploaded_by INTEGER,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS business_claims (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                listing_id INTEGER NOT NULL,
+                user_name TEXT NOT NULL,
+                user_email TEXT NOT NULL,
+                user_phone TEXT,
+                proof_text TEXT,
+                status TEXT DEFAULT 'pending',
+                created_at TEXT DEFAULT (datetime('now'))
+            );
+        ");
+        echo "[OK] All tables created/verified\n";
+
+        // ── Seed Categories ───────────────────────────────────────
+        $cat_count = $pdo->query("SELECT COUNT(*) FROM categories")->fetchColumn();
+        if ($cat_count == 0) {
+            $cats = [
+                ['Restaurants & Eateries', 'restaurants-eateries', 'business', '🍽️', 1],
+                ['Cafes & Milk Tea', 'cafes-milk-tea', 'business', '☕', 2],
+                ['Street Food & Carinderias', 'street-food-carinderias', 'business', '🥘', 3],
+                ['Hotels & Resorts', 'hotels-resorts', 'business', '🏨', 4],
+                ['Barbershops & Salons', 'barbershops-salons', 'business', '💇', 5],
+                ['Banks & Financial', 'banks-financial', 'business', '🏦', 6],
+                ['Mechanics & Auto Repair', 'mechanics-auto-repair', 'business', '🔧', 7],
+                ['Grocery & Sari-Sari', 'grocery-sari-sari', 'business', '🛒', 8],
+                ['Hardware & Construction', 'hardware-construction', 'business', '🔨', 9],
+                ['Clinics & Hospitals', 'clinics-hospitals', 'business', '🏥', 10],
+                ['Pharmacies', 'pharmacies', 'business', '💊', 11],
+                ['Schools & Tutorials', 'schools-tutorials', 'business', '🎓', 12],
+                ['Churches & Worship', 'churches-worship', 'business', '⛪', 13],
+                ['Government Offices', 'government-offices', 'business', '🏛️', 14],
+                ['IT & Computer Shops', 'it-computer-shops', 'business', '💻', 15],
+                ['Water Refilling', 'water-refilling', 'business', '💧', 16],
+                ['Real Estate & Property', 'real-estate-property', 'business', '🏠', 17],
+                ['Farm Supplies & Agri', 'farm-supplies-agri', 'business', '🌾', 18],
+                ['Waterfalls', 'waterfalls', 'tourism', '🌊', 1],
+                ['Farms & Agri-Tourism', 'farms-agri-tourism', 'tourism', '🌿', 2],
+                ['View Decks & Scenic', 'view-decks-scenic', 'tourism', '🏔️', 3],
+                ['Springs & Resorts', 'springs-resorts', 'tourism', '♨️', 4],
+                ['Parks & Nature', 'parks-nature', 'tourism', '🌳', 5],
+                ['Cultural & Heritage', 'cultural-heritage', 'tourism', '🏛️', 6],
+            ];
+            $stmt = $pdo->prepare("INSERT INTO categories (name, slug, type, icon, sort_order, is_active) VALUES (?,?,?,?,?,1)");
+            foreach ($cats as $c) { $stmt->execute($c); }
+            echo "[OK] " . count($cats) . " categories seeded\n";
+        } else {
+            echo "[SKIP] Categories already exist ($cat_count found)\n";
+        }
+
+        // ── Admin User ────────────────────────────────────────────
+        $admin_exists = $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'admin'")->fetchColumn();
+        if (!$admin_exists) {
+            $hash = password_hash('admin123', PASSWORD_BCRYPT, ['cost' => 12]);
+            $pdo->prepare("INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)")
+                ->execute(['Admin', 'admin@tampakan.com', $hash, 'admin']);
+            echo "[OK] Admin user created (admin@tampakan.com / admin123)\n";
+        } else {
+            echo "[SKIP] Admin user already exists\n";
+        }
+
+        // ── Verify ────────────────────────────────────────────────
+        $tables = [];
+        $result = $pdo->query("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name");
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) { $tables[] = $row['name']; }
+        echo "\n[TABLES] " . implode(', ', $tables) . "\n";
+        echo "\n=== SETUP COMPLETE ===\n";
+        echo "Next: Log in at /login with admin@tampakan.com / admin123\n";
+        echo "Then: Remove or change the sweep key in index.php for security.\n";
+
     } catch (Exception $e) {
-        echo "\n✗ SETUP ERROR: " . $e->getMessage() . "\n";
-        echo "File: " . $e->getFile() . " (Line: " . $e->getLine() . ")\n";
+        echo "\n[ERROR] " . $e->getMessage() . "\n";
+        echo "File: " . $e->getFile() . " Line: " . $e->getLine() . "\n";
     }
     exit;
 }
@@ -81,24 +304,16 @@ if (preg_match('/\.(css|js|png|jpg|jpeg|gif|svg|webp|ico|woff2?|ttf|map)$/', $pa
     return false;
 }
 
-// ── Maintenance Mode (Digital Blackout) ──────────────────────────────
-// This blocks the "garbage" state from the world while you finish setup.
-if (true) { // Set to false to disable maintenance mode
-     http_response_code(503); // Service Unavailable
-     echo render_page('errors/coming-soon', [
-         'title'   => 'Under Construction',
-         'message' => 'The Tampakan Directory is currently undergoing scheduled maintenance and database synchronization. We will be back online shortly!',
-     ]);
-     exit;
-}
-
-if (true) { // Set to false to disable maintenance mode
-     http_response_code(503); // Service Unavailable
-     echo render_page('errors/coming-soon', [
-         'title'   => 'Under Construction',
-         'message' => 'The Tampakan Directory is currently undergoing scheduled maintenance and database synchronization. We will be back online shortly!',
-     ]);
-     exit;
+// ── Maintenance Mode ────────────────────────────────────────────────
+// Set to true to block public access during setup. Set to false to go live.
+$maintenance_mode = false;
+if ($maintenance_mode) {
+    http_response_code(503);
+    echo render_page('errors/coming-soon', [
+        'title'   => 'Under Construction',
+        'message' => 'The Tampakan Directory is currently undergoing scheduled maintenance. We will be back online shortly!',
+    ]);
+    exit;
 }
 
 // ── Route Definitions ──────────────────────────────────────────────
@@ -185,10 +400,6 @@ $routes = [
     // SEO
     ['GET',  'sitemap.xml',         'seo/sitemap'],
     ['GET',  'robots.txt',          'seo/robots'],
-
-    // Temporary Setup routes
-    ['GET',  'db-init',             'admin/db-init'],
-    ['GET',  'db-setup',            'admin/db-setup'],
 ];
 
 // ── Route Matching ─────────────────────────────────────────────────
