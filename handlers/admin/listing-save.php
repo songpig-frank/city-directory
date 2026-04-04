@@ -45,6 +45,11 @@ $youtube = trim($_POST['youtube'] ?? '');
 $shopee = trim($_POST['shopee_link'] ?? '');
 $lazada = trim($_POST['lazada_link'] ?? '');
 
+// SEO / Open Graph
+$og_title = trim($_POST['og_title'] ?? '');
+$og_description = trim($_POST['og_description'] ?? '');
+$og_image = trim($_POST['og_image'] ?? '');
+
 // Status & Featured
 $status = $_POST['status'] ?? 'pending';
 $is_featured = isset($_POST['is_featured']) ? 1 : 0;
@@ -68,6 +73,7 @@ db_execute(
         lat = ?, lng = ?,
         facebook = ?, instagram = ?, tiktok = ?, youtube = ?,
         shopee_link = ?, lazada_link = ?,
+        og_title = ?, og_description = ?, og_image = ?,
         status = ?, is_featured = ?, featured_until = ?
      WHERE id = ?",
     [
@@ -76,6 +82,7 @@ db_execute(
         $lat, $lng,
         $facebook, $instagram, $tiktok, $youtube,
         $shopee, $lazada,
+        $og_title, $og_description, $og_image,
         $status, $is_featured, $featured_until,
         $id
     ]

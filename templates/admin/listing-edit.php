@@ -158,6 +158,55 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- SEO & Social Sharing -->
+                    <div class="card p-6" id="seo-section">
+                        <h3 style="font-family:var(--font-heading);margin-bottom:var(--space-6);padding-bottom:var(--space-2);border-bottom:1px solid var(--gray-200);">🚀 Social Media Presence & SEO</h3>
+                        
+                        <div class="grid grid-2-1 gap-8">
+                            <div class="form-group">
+                                <div class="form-group mb-4">
+                                    <label class="form-label">Custom Social Title</label>
+                                    <input type="text" name="og_title" id="og-title-input" value="<?= clean($listing['og_title'] ?? $listing['name']) ?>" class="form-input" placeholder="Leave blank to use business name">
+                                    <small class="text-muted">How it appears on Facebook/WhatsApp (recommended < 60 chars).</small>
+                                </div>
+                                <div class="form-group mb-4">
+                                    <label class="form-label">Custom Social Description</label>
+                                    <textarea name="og_description" id="og-desc-input" class="form-input" rows="3" placeholder="A short, catchy summary..."><?= clean($listing['og_description'] ?? '') ?></textarea>
+                                    <small class="text-muted">Ideally 150-160 characters for best snippet appearance.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Custom Social Image URL</label>
+                                    <div style="display:flex;gap:8px;">
+                                        <input type="text" name="og_image" id="og-image-input" value="<?= clean($listing['og_image'] ?? '') ?>" class="form-input" placeholder="/uploads/seo/sharing.jpg">
+                                        <button type="button" class="btn btn-ghost" onclick="window.open('/admin/media?listing_id=<?= $listing['id'] ?>','_blank')">Browse</button>
+                                    </div>
+                                    <small class="text-muted">Best size: 1200x630px. Fallback is the primary business photo.</small>
+                                </div>
+                            </div>
+
+                            <!-- Real-time Preview -->
+                            <div class="social-preview-container">
+                                <label class="form-label" style="text-align:center;display:block;margin-bottom:var(--space-4);">WhatsApp / Facebook Preview</label>
+                                <div class="social-card-v2">
+                                    <div class="social-card-img" id="og-preview-img-container">
+                                        <?php if (!empty($listing['og_image'])): ?>
+                                            <img src="<?= $listing['og_image'] ?>" id="og-preview-img">
+                                        <?php elseif (!empty($listing['primary_image'])): ?>
+                                            <img src="<?= $listing['primary_image'] ?>" id="og-preview-img">
+                                        <?php else: ?>
+                                            <div style="width:100%;height:100%;background:var(--gray-200);display:flex;align-items:center;justify-content:center;"><i data-lucide="image" class="text-muted" style="width:32px;height:32px;"></i></div>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="social-card-content">
+                                        <div class="social-card-domain">tampakan.com</div>
+                                        <div class="social-card-title" id="og-preview-title"><?= clean($listing['name']) ?></div>
+                                        <div class="social-card-desc" id="og-preview-desc"><?= truncate(strip_tags($listing['description'] ?? 'Find more about this listing on Tampakan Directory...'), 100) ?></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Sidebar Column -->
@@ -240,11 +289,38 @@ document.addEventListener('DOMContentLoaded', function() {
     const slugInput = document.getElementById('listing-slug');
     
     if (nameInput && slugInput && !slugInput.value) {
-        nameInput.addEventListener('input', function(e) {
-            slugInput.value = e.target.value
-                .toLowerCase()
-                .replace(/[^a-z0-9]+/g, '-')
-                .replace(/(^-|-$)+/g, '');
+        });
+    }
+
+    // 3. Social Preview Real-time Sync
+    const ogTitleInput = document.getElementById('og-title-input');
+    const ogDescInput  = document.getElementById('og-desc-input');
+    const ogImageInput = document.getElementById('og-image-input');
+    
+    const pvTitle = document.getElementById('og-preview-title');
+    const pvDesc  = document.getElementById('og-preview-desc');
+    const pvImg   = document.getElementById('og-preview-img');
+
+    if (ogTitleInput) {
+        ogTitleInput.addEventListener('input', (e) => {
+            pvTitle.textContent = e.target.value || nameInput.value || 'Business Name';
+        });
+    }
+    if (ogDescInput) {
+        ogDescInput.addEventListener('input', (e) => {
+            pvDesc.textContent = e.target.value || 'Find more about this listing on Tampakan Directory...';
+        });
+    }
+    if (ogImageInput) {
+        ogImageInput.addEventListener('input', (e) => {
+            if (e.target.value) {
+                if (!pvImg) {
+                    const container = document.getElementById('og-preview-img-container');
+                    container.innerHTML = `<img src="${e.target.value}" id="og-preview-img">`;
+                } else {
+                    pvImg.src = e.target.value;
+                }
+            }
         });
     }
 

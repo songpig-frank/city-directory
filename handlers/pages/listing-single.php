@@ -8,6 +8,7 @@ if (!$slug) { http_response_code(404); echo render_page('errors/404', ['title' =
 
 $listing = db_row(
     "SELECT l.*, c.name as category_name, c.icon as category_icon, c.slug as category_slug,
+            c.default_image as category_default_image,
             u.name as owner_name
      FROM listings l
      JOIN categories c ON l.category_id = c.id
@@ -22,7 +23,7 @@ if ($listing) {
         JOIN listing_categories lc ON c.id = lc.category_id
         WHERE lc.listing_id = ?
         UNION
-        SELECT id, name, slug, type, icon, description, parent_id, sort_order, is_active, created_at
+        SELECT id, name, slug, description, parent_id, type, icon, default_image, sort_order, is_active, created_at
         FROM categories WHERE id = ?
     ", [$listing['id'], $listing['category_id']]);
 }
@@ -61,10 +62,31 @@ $related = db_query(
     [$listing['category_id'], $listing['id']]
 );
 
+// 4. Smart SEO & Social (Open Graph) Fallbacks
+$og_title = !empty($listing['og_title']) 
+    ? $listing['og_title'] 
+    : $listing['name'] . ' — ' . config('site_name');
+
+$og_description = !empty($listing['og_description']) 
+    ? $listing['og_description'] 
+    : truncate(strip_tags($listing['description'] ?? ''), 160);
+
+// Image logic (Smart Fallback)
+$final_og_image = null;
+if (!empty($listing['og_image'])) {
+    $final_og_image = $listing['og_image'];
+} elseif (!empty($images)) {
+    $final_og_image = $images[0]['image_path'];
+} elseif (!empty($listing['category_default_image'])) {
+    $final_og_image = $listing['category_default_image'];
+} else {
+    $final_og_image = config('default_og_image');
+}
+
 echo render_page('listing-single', [
-    'title'            => $listing['name'] . ' — ' . config('site_name'),
-    'meta_description' => truncate(strip_tags($listing['description'] ?? ''), 160),
-    'og_image'         => !empty($images) ? $images[0]['image_path'] : null,
+    'title'            => $og_title,
+    'meta_description' => $og_description,
+    'og_image'         => $final_og_image,
     'og_type'          => 'place',
     'schema'           => site_schema(listing_schema($listing, $images)),
     'listing'          => $listing,

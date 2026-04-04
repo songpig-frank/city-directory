@@ -17,6 +17,7 @@ if (php_sapi_name() !== 'cli' && ($_GET['key'] ?? '') !== $secret_key) {
 echo "🏗️ Running Schema Migrations...\n";
 ob_start();
 include __DIR__ . '/database/migrate-admin-v2.php';
+include __DIR__ . '/database/migrate-seo-v1.php';
 $migration_log = ob_get_clean();
 echo str_replace(['<pre>', '</pre>'], '', $migration_log) . "\n";
 echo "🏗️ Schema Migrations complete.\n\n";

@@ -1444,3 +1444,27 @@ body.device-tablet .visible-desktop { display: none !important; }
         padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
     }
 }
+
+/* --- Social Card Preview (Admin) --- */
+.social-card-v2 {
+    width: 100%;
+    max-width: 380px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 0 auto;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+    box-shadow: var(--shadow-md);
+}
+.dark .social-card-v2 { background: #1c1c1e; border-color: #38383a; }
+.social-card-img { width: 100%; aspect-ratio: 1.91 / 1; border-bottom: 1px solid #eee; overflow: hidden; }
+.dark .social-card-img { border-color: #38383a; }
+.social-card-img img { width: 100%; height: 100%; object-fit: cover; }
+.social-card-content { padding: 12px; }
+.social-card-domain { color: #65676b; font-size: 11px; text-transform: uppercase; margin-bottom: 4px; }
+.dark .social-card-domain { color: #8a8d91; }
+.social-card-title { color: #050505; font-weight: 600; font-size: 15px; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.dark .social-card-title { color: #e4e6eb; }
+.social-card-desc { color: #65676b; font-size: 13px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.dark .social-card-desc { color: #b0b3b8; }
