@@ -391,6 +391,8 @@ $routes = [
     ['POST', 'admin/categories/save', 'admin/category-save'],
     ['POST', 'admin/categories/delete', 'admin/category-delete'],
     ['GET',  'admin/users',         'admin/users'],
+    ['POST', 'admin/users/save',    'admin/user-save'],
+    ['POST', 'admin/users/unlock',  'admin/user-unlock'],
     ['GET',  'admin/messages',      'admin/messages'],
     ['GET',  'admin/settings',      'admin/settings'],
     ['POST', 'admin/settings/save', 'admin/settings-save'],

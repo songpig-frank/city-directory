@@ -2,7 +2,7 @@
 /**
  * Handler: Admin Business Claims
  */
-auth_require('admin');
+auth_require('claims:manage');
 
 $status = $_GET['status'] ?? 'pending';
 $claims = db_query(

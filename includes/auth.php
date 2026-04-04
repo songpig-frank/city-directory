@@ -20,13 +20,46 @@ function auth_init(): void {
 }
 
 /**
- * Attempt login. Returns user array on success, null on failure.
+ * Attempt login. Returns user array on success, or an error string on failure.
  */
-function auth_login(string $email, string $password): ?array {
-    $user = db_row("SELECT * FROM users WHERE email = ? AND is_active = 1", [$email]);
-    if (!$user || !password_verify($password, $user['password_hash'])) {
-        return null;
+function auth_login(string $email, string $password): array|string {
+    $user = db_row("SELECT * FROM users WHERE email = ?", [$email]);
+    
+    if (!$user) {
+        return 'invalid_credentials';
     }
+
+    // 1. Check if Account is DISABLED (Permanent)
+    if (isset($user['is_active']) && (int)$user['is_active'] === 0) {
+        return 'account_disabled';
+    }
+
+    // 2. Check if Account is LOCKED (Temporary)
+    if (!empty($user['locked_until'])) {
+        $locked_until = strtotime($user['locked_until']);
+        if ($locked_until > time()) {
+            return 'account_locked';
+        }
+    }
+
+    // 3. Verify Password
+    if (!password_verify($password, $user['password_hash'])) {
+        // Increment failed logins
+        $failed = ((int)($user['failed_logins'] ?? 0)) + 1;
+        $lock_until = null;
+        
+        // Lock account for 30 mins after 5 failures
+        if ($failed >= 5) {
+            $lock_until = date('Y-m-d H:i:s', time() + 1800);
+        }
+        
+        db_execute("UPDATE users SET failed_logins = ?, locked_until = ? WHERE id = ?", [$failed, $lock_until, $user['id']]);
+        
+        return $failed >= 5 ? 'account_locked' : 'invalid_credentials';
+    }
+
+    // 4. Success: Reset security counters
+    db_execute("UPDATE users SET failed_logins = 0, locked_until = NULL, last_login = CURRENT_TIMESTAMP WHERE id = ?", [$user['id']]);
 
     // Regenerate session ID to prevent fixation
     session_regenerate_id(true);
@@ -34,9 +67,6 @@ function auth_login(string $email, string $password): ?array {
     $_SESSION['user_role']  = $user['role'];
     $_SESSION['user_name']  = $user['name'];
     $_SESSION['user_trusted'] = $user['is_trusted'] ?? 0;
-
-    // Update last login
-    db_execute("UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?", [$user['id']]);
 
     return $user;
 }
@@ -86,6 +116,43 @@ function auth_role(): ?string {
 }
 
 /**
+ * Role-Based Access Control: Check if current user has a specific duty.
+ */
+function auth_can(string $duty_slug): bool {
+    if (!auth_check()) return false;
+    
+    // Super-admin always has all duties
+    $user_role = auth_role();
+    if ($user_role === 'super_admin') return true;
+    
+    // Cache perms in session for speed
+    if (!isset($_SESSION['user_duties'])) {
+        $user_id = auth_id();
+        $duties = db_query("
+            SELECT p.slug FROM permissions p
+            JOIN role_permissions rp ON p.id = rp.permission_id
+            JOIN roles r ON rp.role_id = r.id
+            JOIN users u ON u.role = r.slug
+            WHERE u.id = ?
+        ", [$user_id]);
+        $_SESSION['user_duties'] = array_column($duties, 'slug');
+    }
+    
+    return in_array($duty_slug, $_SESSION['user_duties']);
+}
+
+/**
+ * Middleware: Require a specific duty or abort with 403.
+ */
+function auth_require_duty(string $duty_slug): void {
+    if (!auth_can($duty_slug)) {
+        http_response_code(403);
+        echo render('errors/403', ['title' => 'Access Denied', 'duty' => $duty_slug]);
+        exit;
+    }
+}
+
+/**
  * Check if current user has one of the given roles.
  */
 function auth_has_role(string ...$roles): bool {
@@ -94,17 +161,31 @@ function auth_has_role(string ...$roles): bool {
 
 /**
  * Require login — redirect to login page if not authenticated.
+ * Now handles both Roles and Duties.
  */
-function auth_require(string ...$roles): void {
+function auth_require(...$requirements): void {
     if (!auth_check()) {
         header('Location: /login?redirect=' . urlencode($_SERVER['REQUEST_URI']));
         exit;
     }
-    if (!empty($roles) && !auth_has_role(...$roles)) {
-        http_response_code(403);
-        echo render('errors/403');
-        exit;
+    
+    if (empty($requirements)) return;
+
+    // Check if any requirements are met
+    foreach ($requirements as $req) {
+        // If it looks like a duty (contains ':'), check duty
+        if (strpos($req, ':') !== false) {
+            if (auth_can($req)) return;
+        } else {
+            // Else check role
+            if (auth_has_role($req)) return;
+        }
     }
+
+    // If we got here, no requirements were met
+    http_response_code(403);
+    echo render('errors/403', ['title' => 'Access Denied']);
+    exit;
 }
 
 /**

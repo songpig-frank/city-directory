@@ -13,7 +13,10 @@
                 <input type="email" name="email" id="email" class="form-input" required autofocus autocomplete="email">
             </div>
             <div class="form-group">
-                <label class="form-label" for="password"><?= __('password') ?></label>
+                <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                    <label class="form-label" for="password"><?= __('password') ?></label>
+                    <a href="/forgot-password" style="font-size:var(--text-xs);color:var(--primary);">Forgot Password?</a>
+                </div>
                 <div style="position:relative;">
                     <input type="password" name="password" id="password" class="form-input" required autocomplete="current-password" style="padding-right:48px;">
                     <button type="button" onclick="togglePassword('password', this)" aria-label="Show password" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:6px;color:var(--gray-400);">

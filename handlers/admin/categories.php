@@ -2,7 +2,7 @@
 /**
  * Admin: Category Management List
  */
-auth_require('admin');
+auth_require('categories:manage');
 
 $categories = db_query("
     SELECT c.*, 

@@ -2,7 +2,7 @@
 /**
  * Admin: Blog List
  */
-auth_require('admin');
+auth_require('blog:manage');
 
 $posts = db_query("SELECT * FROM posts ORDER BY created_at DESC");
 

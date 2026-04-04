@@ -21,29 +21,37 @@ $msg_count = $stats['messages'] ?? 0;
     <a href="/admin/listings" <?= $active === 'listings' ? 'class="active"' : '' ?>>
         <i data-lucide="list" style="width:18px;height:18px;"></i> Listings
     </a>
-    <?php if ($role === 'admin'): ?>
+    <?php if (auth_can('system:logs')): ?>
     <a href="/admin/import" <?= $active === 'import' ? 'class="active"' : '' ?>>
         <i data-lucide="upload" style="width:18px;height:18px;"></i> Bulk Import
     </a>
+    <?php endif; ?>
+    <?php if (auth_can('listings:edit')): ?>
     <a href="/admin/promotions" <?= $active === 'promotions' ? 'class="active"' : '' ?>>
         <i data-lucide="badge-dollar-sign" style="width:18px;height:18px;"></i> Promotions
     </a>
+    <?php endif; ?>
+    <?php if (auth_can('categories:manage')): ?>
     <a href="/admin/categories" <?= $active === 'categories' ? 'class="active"' : '' ?>>
         <i data-lucide="tag" style="width:18px;height:18px;"></i> Categories
     </a>
     <?php endif; ?>
+    <?php if (auth_can('blog:manage')): ?>
     <a href="/admin/blog" <?= $active === 'blog' ? 'class="active"' : '' ?>>
         <i data-lucide="file-text" style="width:18px;height:18px;"></i> Blog Posts
     </a>
-    <?php if ($role === 'admin'): ?>
+    <?php endif; ?>
+    <?php if (auth_can('claims:manage')): ?>
     <a href="/admin/claims" <?= $active === 'admin/claims' ? 'class="active"' : '' ?>>
         <i data-lucide="shield-check" style="width:18px;height:18px;"></i> Business Claims
         <?php if (($stats['pending_claims'] ?? 0) > 0): ?>
         <span class="badge badge-pending" style="margin-left:auto;"><?= $stats['pending_claims'] ?></span>
         <?php endif; ?>
     </a>
+    <?php endif; ?>
+    <?php if (auth_can('users:manage')): ?>
     <a href="/admin/users" <?= $active === 'users' ? 'class="active"' : '' ?>>
-        <i data-lucide="users" style="width:18px;height:18px;"></i> Users
+        <i data-lucide="users" style="width:18px;height:18px;"></i> Users & Roles
     </a>
     <?php endif; ?>
     <a href="/admin/messages" <?= $active === 'messages' ? 'class="active"' : '' ?>>
@@ -52,7 +60,7 @@ $msg_count = $stats['messages'] ?? 0;
         <span class="badge badge-pending" style="margin-left:auto;"><?= $msg_count ?></span>
         <?php endif; ?>
     </a>
-    <?php if ($role === 'admin'): ?>
+    <?php if (auth_can('settings:manage')): ?>
     <a href="/admin/settings" <?= $active === 'settings' ? 'class="active"' : '' ?>>
         <i data-lucide="settings" style="width:18px;height:18px;"></i> Settings
     </a>

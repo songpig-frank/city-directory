@@ -2,7 +2,7 @@
 /**
  * Handler: Admin All Listings
  */
-auth_require('admin', 'manager');
+auth_require('listings:view');
 
 // Pagination
 $page = max(1, (int)($_GET['page'] ?? 1));

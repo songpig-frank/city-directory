@@ -19,7 +19,19 @@ $password = $_POST['password'] ?? '';
 
 $user = auth_login($email, $password);
 
-if (!$user) {
+if ($user === 'account_disabled') {
+    flash('error', 'Your account has been disabled. Please contact support.');
+    header('Location: /login');
+    exit;
+}
+
+if ($user === 'account_locked') {
+    flash('error', 'Too many failed attempts. Your account is locked for 30 minutes.');
+    header('Location: /login');
+    exit;
+}
+
+if ($user === 'invalid_credentials') {
     flash('error', __('login_error'));
     header('Location: /login');
     exit;

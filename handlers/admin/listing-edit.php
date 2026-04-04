@@ -2,7 +2,7 @@
 /**
  * Admin: Listing Edit
  */
-auth_require('admin');
+auth_require('listings:edit');
 
 $id = (int)($params['id'] ?? 0);
 $listing = db_row("SELECT * FROM listings WHERE id = ?", [$id]);
