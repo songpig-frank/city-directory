@@ -290,8 +290,13 @@ function waze_url(float $lat, float $lng): string {
  * 4. System default
  */
 function get_listing_image(?array $listing): string {
+    // If the image exists physically on the server, use it.
     if (!empty($listing['primary_image'])) {
-        return $listing['primary_image'];
+        $path = $listing['primary_image'];
+        $full_path = $_SERVER['DOCUMENT_ROOT'] . '/' . ltrim($path, '/');
+        if (file_exists($full_path)) {
+            return $path;
+        }
     }
 
     $type = $listing['type'] ?? 'business';
