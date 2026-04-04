@@ -22,7 +22,7 @@ function auth_init(): void {
 /**
  * Attempt login. Returns user array on success, or an error string on failure.
  */
-function auth_login(string $email, string $password): array|string {
+function auth_login(string $email, string $password) {
     $user = db_row("SELECT * FROM users WHERE email = ?", [$email]);
     
     if (!$user) {
@@ -44,22 +44,38 @@ function auth_login(string $email, string $password): array|string {
 
     // 3. Verify Password
     if (!password_verify($password, $user['password_hash'])) {
-        // Increment failed logins
-        $failed = ((int)($user['failed_logins'] ?? 0)) + 1;
-        $lock_until = null;
-        
-        // Lock account for 30 mins after 5 failures
-        if ($failed >= 5) {
-            $lock_until = date('Y-m-d H:i:s', time() + 1800);
+        // Increment failed logins (if columns exist)
+        if (array_key_exists('failed_logins', $user)) {
+            $failed = ((int)$user['failed_logins']) + 1;
+            $lock_until = null;
+            
+            // Lock account for 30 mins after 5 failures
+            if ($failed >= 5) {
+                $lock_until = date('Y-m-d H:i:s', time() + 1800);
+            }
+            
+            try {
+                db_execute("UPDATE users SET failed_logins = ?, locked_until = ? WHERE id = ?", [$failed, $lock_until, $user['id']]);
+            } catch (Exception $e) {
+                // Ignore if migration hasn't run yet
+            }
+            
+            if ($failed >= 5) return 'account_locked';
         }
         
-        db_execute("UPDATE users SET failed_logins = ?, locked_until = ? WHERE id = ?", [$failed, $lock_until, $user['id']]);
-        
-        return $failed >= 5 ? 'account_locked' : 'invalid_credentials';
+        return 'invalid_credentials';
     }
 
-    // 4. Success: Reset security counters
-    db_execute("UPDATE users SET failed_logins = 0, locked_until = NULL, last_login = CURRENT_TIMESTAMP WHERE id = ?", [$user['id']]);
+    // 4. Success: Reset security counters (if columns exist)
+    if (array_key_exists('failed_logins', $user)) {
+        try {
+            db_execute("UPDATE users SET failed_logins = 0, locked_until = NULL, last_login = CURRENT_TIMESTAMP WHERE id = ?", [$user['id']]);
+        } catch (Exception $e) {
+             db_execute("UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?", [$user['id']]);
+        }
+    } else {
+        db_execute("UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?", [$user['id']]);
+    }
 
     // Regenerate session ID to prevent fixation
     session_regenerate_id(true);
