@@ -9,10 +9,12 @@
     <?php endif; ?>
     <div class="listing-hero-overlay">
         <div class="container">
-            <div class="flex items-center gap-2" style="margin-bottom: var(--space-2);">
-                <a href="<?= category_url(['slug' => $listing['category_slug']]) ?>" class="badge badge-category">
-                    <i data-lucide="<?= $listing['category_icon'] ?? 'tag' ?>" style="width:14px;height:14px;"></i> <?= clean($listing['category_name']) ?>
+            <div class="flex items-center gap-2" style="margin-bottom: var(--space-2); flex-wrap:wrap;">
+                <?php foreach ($all_categories as $cat): ?>
+                <a href="<?= category_url($cat) ?>" class="badge badge-category">
+                    <i data-lucide="<?= $cat['icon'] ?? 'tag' ?>" style="width:14px;height:14px;"></i> <?= clean($cat['name']) ?>
                 </a>
+                <?php endforeach; ?>
                 <?php if ($listing['is_featured']): ?>
                 <span class="badge badge-featured"><i data-lucide="star" style="width:14px;height:14px;margin-right:2px;"></i> <?= __('featured') ?></span>
                 <?php endif; ?>
@@ -32,6 +34,18 @@
 
 <section class="listing-detail">
     <div class="container">
+        <?php if ($listing['status'] === 'expired'): ?>
+        <div class="card" style="border-left:5px solid var(--error); background:var(--error-50); margin-bottom:var(--space-8); padding:var(--space-6); display:flex; align-items:center; gap:var(--space-4);">
+            <div style="background:var(--error); color:white; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <i data-lucide="archive" style="width:20px;height:20px;"></i>
+            </div>
+            <div>
+                <h3 style="color:var(--error-700); margin:0; font-size:var(--text-lg); font-family:var(--font-heading);">Legacy / Closed Listing</h3>
+                <p style="color:var(--error-600); margin:0; font-size:var(--text-sm);">This business has been archived or is no longer in operation. We preserve this page for community record and SEO continuity.</p>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <div class="listing-detail-grid">
             <!-- Main Content -->
             <div>
@@ -317,13 +331,7 @@
             <?php foreach ($related as $item): ?>
             <a href="<?= listing_url($item) ?>" class="card listing-card">
                 <div class="card-img">
-                    <?php if ($item['primary_image']): ?>
-                    <img src="<?= $item['primary_image'] ?>" alt="<?= clean($item['name']) ?>" loading="lazy">
-                    <?php else: ?>
-                    <div style="width:100%;height:100%;background:linear-gradient(135deg,var(--gray-100),var(--gray-200));display:flex;align-items:center;justify-content:center;font-size:3rem;">
-                        <i data-lucide="<?= $item['category_icon'] ?? 'map-pin' ?>"></i>
-                    </div>
-                    <?php endif; ?>
+                    <img src="<?= get_listing_image($item) ?>" alt="<?= clean($item['name']) ?>" loading="lazy">
                 </div>
                 <div class="card-body">
                     <h3 class="card-title"><?= clean($item['name']) ?></h3>

@@ -12,9 +12,20 @@ $listing = db_row(
      FROM listings l
      JOIN categories c ON l.category_id = c.id
      LEFT JOIN users u ON l.owner_id = u.id
-     WHERE l.slug = ? AND l.status = 'active'",
+     WHERE l.slug = ? AND l.status IN ('active', 'expired')",
     [$slug]
 );
+
+if ($listing) {
+    $all_categories = db_query("
+        SELECT c.* FROM categories c
+        JOIN listing_categories lc ON c.id = lc.category_id
+        WHERE lc.listing_id = ?
+        UNION
+        SELECT id, name, slug, type, icon, description, parent_id, sort_order, is_active, created_at
+        FROM categories WHERE id = ?
+    ", [$listing['id'], $listing['category_id']]);
+}
 
 if (!$listing) { http_response_code(404); echo render_page('errors/404', ['title' => 'Listing Not Found']); exit; }
 
@@ -57,6 +68,7 @@ echo render_page('listing-single', [
     'og_type'          => 'place',
     'schema'           => site_schema(listing_schema($listing, $images)),
     'listing'          => $listing,
+    'all_categories'   => $all_categories ?? [],
     'images'           => $images,
     'reviews'          => $reviews,
     'avg_rating'       => $avg_rating,

@@ -28,6 +28,9 @@ $msg_count = $stats['messages'] ?? 0;
     <a href="/admin/promotions" <?= $active === 'promotions' ? 'class="active"' : '' ?>>
         <i data-lucide="badge-dollar-sign" style="width:18px;height:18px;"></i> Promotions
     </a>
+    <a href="/admin/categories" <?= $active === 'categories' ? 'class="active"' : '' ?>>
+        <i data-lucide="tag" style="width:18px;height:18px;"></i> Categories
+    </a>
     <?php endif; ?>
     <a href="/admin/blog" <?= $active === 'blog' ? 'class="active"' : '' ?>>
         <i data-lucide="file-text" style="width:18px;height:18px;"></i> Blog Posts

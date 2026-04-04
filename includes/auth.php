@@ -31,8 +31,9 @@ function auth_login(string $email, string $password): ?array {
     // Regenerate session ID to prevent fixation
     session_regenerate_id(true);
     $_SESSION['user_id'] = $user['id'];
-    $_SESSION['user_role'] = $user['role'];
-    $_SESSION['user_name'] = $user['name'];
+    $_SESSION['user_role']  = $user['role'];
+    $_SESSION['user_name']  = $user['name'];
+    $_SESSION['user_trusted'] = $user['is_trusted'] ?? 0;
 
     // Update last login
     db_execute("UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?", [$user['id']]);

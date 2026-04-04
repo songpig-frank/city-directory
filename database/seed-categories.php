@@ -35,18 +35,26 @@ $categories = [
     ['Schools & Tutorials',     'schools-tutorials',     'business', '🎓', 19, true, true],
     ['Churches & Worship',      'churches-worship',      'business', '⛪', 20, true, true],
     ['Government Offices',      'government-offices',    'business', '🏛️', 21, true, true],
-    ['Legal Services',          'legal-services',        'business', '⚖️', 22, false, true],
+    ['Legal Services',          'legal-services',        'business', '⚖️', 22, true, true],
     ['IT & Computer Shops',     'it-computer-shops',     'business', '💻', 23, true, true],
     ['Printing & Photo',        'printing-photo',        'business', '🖨️', 24, true, true],
     ['Laundry Services',        'laundry-services',      'business', '👔', 25, true, true],
     ['Pet Shops & Vet',         'pet-shops-vet',         'business', '🐕', 26, false, true],
     ['Fitness & Gyms',          'fitness-gyms',          'business', '💪', 27, false, true],
-    ['Transport & Logistics',   'transport-logistics',   'business', '🚛', 28, false, true],
+    ['Transport & Logistics',   'transport-logistics',   'business', '🚛', 28, true, true],
     ['Co-working Spaces',       'co-working-spaces',     'business', '🏢', 29, false, true],
     ['Real Estate & Property',  'real-estate-property',  'business', '🏠', 30, true, true],
     ['Farm Supplies & Agri',    'farm-supplies-agri',    'business', '🌾', 31, true, true],
     ['Funeral Services',        'funeral-services',      'business', '⚱️', 32, true, true],
     ['Water Refilling',         'water-refilling',       'business', '💧', 33, true, true],
+    ['Event Planners & Weddings', 'event-planners-weddings', 'business', '🎉', 34, true, true],
+    ['Car & Motorcycle Dealers','dealerships',           'business', '🚗', 35, true, true],
+    ['Rental Agencies',         'rental-agencies',       'business', '🔑', 36, true, true],
+    ['Travel Agencies',         'travel-agencies',       'business', '✈️', 37, true, true],
+    ['Bus Stations & Terminals','bus-terminals',         'business', '🚌', 38, true, true],
+    ['Ride-Hailing & Taxis',    'ride-hailing-taxis',    'business', '🚕', 39, true, true],
+    ['Doctors & Specialists',   'doctors-specialists',   'business', '🩺', 40, true, true],
+    ['Lawyers & Legal',         'legal-firms',           'business', '⚖️', 41, true, true],
 
     // Tourism categories
     ['Waterfalls',              'waterfalls',            'tourism', '🌊', 1, true, true],
@@ -60,6 +68,9 @@ $categories = [
 
     // Community / Creators
     ['Creative Content & Vloggers','creative-vloggers',  'creator', '📹', 1, true, true],
+    ['Musicians & Bands',         'musicians-bands',     'creator', '🎸', 2, true, true],
+    ['Artists & Ensembles',       'artists-ensembles',   'creator', '🎨', 3, true, true],
+    ['Photographers & Media',     'photographers-media', 'creator', '📸', 4, true, true],
 ];
 
 // column indexes: 0=name, 1=slug, 2=type, 3=icon, 4=sort, 5=tampakan, 6=gensan

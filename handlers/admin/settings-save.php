@@ -11,7 +11,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $keys = [
     'site_name', 'description', 'city', 'province', 'currency',
-    'theme_primary', 'hero_title', 'hero_subtitle'
+    'theme_primary', 'hero_title', 'hero_subtitle',
+    'google_analytics_id', 'google_adsense_id', 'contact_email', 'footer_text'
 ];
 
 foreach ($keys as $key) {

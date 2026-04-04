@@ -361,6 +361,12 @@ $routes = [
     ['POST', 'register',            'actions/register'],
     ['GET',  'logout',              'actions/logout'],
 
+    // Owner Portal
+    ['GET',  'portal',           'portal/dashboard'],
+    ['GET',  'portal/listings',  'portal/listings'],
+    ['GET',  'portal/listings/edit/:id', 'portal/listing-edit'],
+    ['POST', 'portal/listings/save', 'portal/listing-save'],
+
     // Admin
     ['GET',  'admin',               'admin/dashboard'],
     ['GET',  'admin/listings',      'admin/listings'],
@@ -378,6 +384,11 @@ $routes = [
     ['GET',  'admin/blog/:id',      'admin/blog-edit'],
     ['POST', 'admin/blog/save',     'admin/blog-save'],
     ['POST', 'admin/blog/delete',   'admin/blog-delete'],
+    ['GET',  'admin/categories',     'admin/categories'],
+    ['GET',  'admin/categories/add', 'admin/category-edit'],
+    ['GET',  'admin/categories/edit/:id', 'admin/category-edit'],
+    ['POST', 'admin/categories/save', 'admin/category-save'],
+    ['POST', 'admin/categories/delete', 'admin/category-delete'],
     ['GET',  'admin/users',         'admin/users'],
     ['GET',  'admin/messages',      'admin/messages'],
     ['GET',  'admin/settings',      'admin/settings'],

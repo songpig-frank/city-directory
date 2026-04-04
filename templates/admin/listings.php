@@ -37,18 +37,22 @@
                                 </span>
                             </td>
                             <td>
-                                <a href="<?= listing_url($item) ?>" target="_blank" class="btn btn-ghost" style="padding:var(--space-1) var(--space-2);font-size:var(--text-xs);">View</a>
-                                <!-- Support status toggling utilizing the existing backend router -->
-                                <form method="POST" action="/admin/listings/<?= $item['id'] ?>/status" style="display:inline;">
-                                    <?= csrf_field() ?>
-                                    <?php if ($item['status'] === 'pending'): ?>
-                                        <input type="hidden" name="status" value="active">
-                                        <button type="submit" class="btn btn-ghost" style="color:var(--success);padding:var(--space-1) var(--space-2);font-size:var(--text-xs);">Approve</button>
-                                    <?php elseif ($item['status'] === 'active'): ?>
-                                        <input type="hidden" name="status" value="expired">
-                                        <button type="submit" class="btn btn-ghost" style="color:var(--error);padding:var(--space-1) var(--space-2);font-size:var(--text-xs);">Expire</button>
-                                    <?php endif; ?>
-                                </form>
+                                <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                                    <a href="<?= listing_url($item) ?>" target="_blank" class="btn btn-ghost" title="View Public Page" style="padding:4px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;"><i data-lucide="external-link" style="width:16px;height:16px;"></i></a>
+                                    
+                                    <a href="/admin/listings/edit/<?= $item['id'] ?>" class="btn btn-ghost" title="Edit Listing" style="padding:4px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--primary);"><i data-lucide="edit-3" style="width:16px;height:16px;"></i></a>
+
+                                    <form method="POST" action="/admin/listings/<?= $item['id'] ?>/status" style="display:inline;">
+                                        <?= csrf_field() ?>
+                                        <?php if ($item['status'] === 'pending'): ?>
+                                            <input type="hidden" name="status" value="active">
+                                            <button type="submit" class="btn btn-ghost" title="Approve" style="padding:4px;width:32px;height:32px;color:var(--success);"><i data-lucide="check-circle" style="width:16px;height:16px;"></i></button>
+                                        <?php elseif ($item['status'] === 'active'): ?>
+                                            <input type="hidden" name="status" value="expired">
+                                            <button type="submit" class="btn btn-ghost" title="Archive/Expire" style="padding:4px;width:32px;height:32px;color:var(--error);"><i data-lucide="archive" style="width:16px;height:16px;"></i></button>
+                                        <?php endif; ?>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         <?php endforeach; ?>

@@ -13,12 +13,15 @@ if (!$listing) {
     exit;
 }
 
-$categories = db_query("SELECT id, name, type FROM categories ORDER BY type, name");
+$categories = db_query("SELECT id, name, type, icon FROM categories ORDER BY type, name");
+$secondary_categories = db_query("SELECT category_id FROM listing_categories WHERE listing_id = ?", [$id]);
+$secondary_ids = array_column($secondary_categories, 'category_id');
 
 $title = 'Edit ' . $listing['name'] . ' - Admin';
 $content = render('admin/listing-edit', [
     'listing' => $listing,
-    'categories' => $categories
+    'categories' => $categories,
+    'secondary_ids' => $secondary_ids
 ]);
 
 echo render('layout', [

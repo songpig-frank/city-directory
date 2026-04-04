@@ -13,6 +13,14 @@ if (php_sapi_name() !== 'cli' && ($_GET['key'] ?? '') !== $secret_key) {
     die("Access Denied: Please provide the correct key (?key=XXXX) to run this script.");
 }
 
+// ── Step -1: Run Schema Migrations first ──
+echo "🏗️ Running Schema Migrations...\n";
+ob_start();
+include __DIR__ . '/database/migrate-admin-v2.php';
+$migration_log = ob_get_clean();
+echo str_replace(['<pre>', '</pre>'], '', $migration_log) . "\n";
+echo "🏗️ Schema Migrations complete.\n\n";
+
 $pdo = db();
 echo "<pre>=== Adding Real Tampakan Entries ===\n\n";
 
@@ -46,6 +54,12 @@ $cat_cafe   = get_cat_id('cafes-milk-tea', $pdo);
 $cat_tour   = get_cat_id('view-decks-scenic', $pdo);
 $cat_nature = get_cat_id('parks-nature', $pdo);
 $cat_resort = get_cat_id('springs-resorts', $pdo);
+$cat_doctors = get_cat_id('doctors-specialists', $pdo);
+$cat_lawyers = get_cat_id('legal-firms', $pdo);
+$cat_travel  = get_cat_id('travel-agencies', $pdo);
+$cat_bus     = get_cat_id('bus-terminals', $pdo);
+$cat_taxi    = get_cat_id('ride-hailing-taxis', $pdo);
+$cat_wed     = get_cat_id('event-planners-weddings', $pdo);
 
 $cols = 'category_id,owner_id,type,name,slug,description,address,barangay,city,province,lat,lng,phone,facebook,status,is_featured,is_spotlight';
 $placeholders = implode(',', array_fill(0, 17, '?'));
@@ -106,6 +120,27 @@ $entries = [
         'cat' => $cat_resort, 'type' => 'tourism', 'name' => 'Taniongon Spring Resort', 'slug' => 'taniongon-spring-resort',
         'desc' => "Cool mountain spring water in public and private pools. Perfect for family outings.",
         'fb' => '', 'lat' => '6.3313', 'lng' => '124.9511', 'brgy' => 'Tupi'
+    ],
+    // ── PROFESSIONAL SERVICES ──────────────────────────────────────
+    [
+        'cat' => $cat_doctors, 'type' => 'business', 'name' => 'Tampakan Medical Clinic', 'slug' => 'tampakan-medical-clinic',
+        'desc' => "General practitioners and specialized care for the community.",
+        'fb' => '', 'lat' => '6.4445', 'lng' => '124.9310', 'brgy' => 'Poblacion'
+    ],
+    [
+        'cat' => $cat_lawyers, 'type' => 'business', 'name' => 'Santos-Reyes Legal Associates', 'slug' => 'santos-reyes-legal',
+        'desc' => "Professional legal services, notary public, and consultation.",
+        'fb' => '', 'lat' => '6.4430', 'lng' => '124.9280', 'brgy' => 'Poblacion'
+    ],
+    [
+        'cat' => $cat_travel, 'type' => 'business', 'name' => 'Explorer Tampakan Travel & Tours', 'slug' => 'explorer-tampakan-travel',
+        'desc' => "International and domestic flight bookings, tour packages, and passport assistance.",
+        'fb' => '', 'lat' => '6.4450', 'lng' => '124.9320', 'brgy' => 'Poblacion'
+    ],
+    [
+        'cat' => $cat_bus, 'type' => 'business', 'name' => 'Tampakan Integrated Terminal', 'slug' => 'tampakan-bus-terminal',
+        'desc' => "Central hub for buses and transport reaching Koronadal and beyond.",
+        'fb' => '', 'lat' => '6.4480', 'lng' => '124.9300', 'brgy' => 'Poblacion'
     ],
 ];
 

@@ -4,9 +4,16 @@
 
     <!-- Content -->
     <div class="admin-content">
-        <div class="admin-header">
-            <h1>Dashboard</h1>
-            <span class="text-sm text-muted">Welcome, <?= clean($_SESSION['user_name'] ?? 'Admin') ?></span>
+        <div class="admin-header" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <h1 style="font-family:var(--font-heading); font-size:var(--text-2xl);">🚀 Dashboard</h1>
+                <span class="text-sm text-muted">Welcome back, <?= clean($_SESSION['user_name'] ?? 'Admin') ?></span>
+            </div>
+            <div style="display:flex; gap:var(--space-3);">
+                <a href="/seed-tampakan.php?key=tampakan2026" target="_blank" class="btn btn-ghost btn-sm" style="color:var(--primary); border:1px solid var(--primary-light);">
+                    <i data-lucide="refresh-ccw" style="width:16px;height:16px;margin-right:6px;"></i> Sync Production
+                </a>
+            </div>
         </div>
 
         <!-- Stats -->

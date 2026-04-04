@@ -40,9 +40,23 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://unpkg.com">
 
-    <!-- Google Search Console -->
+    <!-- Google Search Console / Analytics -->
     <?php if (config('google_verification')): ?>
     <meta name="google-site-verification" content="<?= config('google_verification') ?>">
+    <?php endif; ?>
+    <?php if (config('google_analytics_id')): ?>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<?= config('google_analytics_id') ?>"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '<?= config('google_analytics_id') ?>');
+    </script>
+    <?php endif; ?>
+
+    <!-- Google AdSense -->
+    <?php if (config('google_adsense_id')): ?>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=<?= config('google_adsense_id') ?>" crossorigin="anonymous"></script>
     <?php endif; ?>
 
     <!-- Styles -->
@@ -235,7 +249,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <span><?= __('copyright', ['year' => date('Y'), 'site_name' => config('site_name')]) ?></span>
+                <span><?= config('footer_text') ? clean(config('footer_text')) : __('copyright', ['year' => date('Y'), 'site_name' => config('site_name')]) ?></span>
                 <span><?= __('powered_by') ?></span>
             </div>
             <div class="footer-disclaimer">
@@ -251,15 +265,5 @@
     <script src="<?= asset('assets/js/app.js') ?>"></script>
     <script>document.addEventListener('DOMContentLoaded',function(){if(window.lucide)lucide.createIcons();});</script>
 
-    <!-- Google Analytics -->
-    <?php if (config('google_analytics')): ?>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=<?= config('google_analytics') ?>"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', '<?= config('google_analytics') ?>');
-    </script>
-    <?php endif; ?>
 </body>
 </html>

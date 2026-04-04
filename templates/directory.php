@@ -42,19 +42,7 @@
                         <span class="badge badge-featured"><i data-lucide="star" style="width:14px;height:14px;margin-right:2px;"></i> <?= __('featured') ?></span>
                         <?php endif; ?>
                         <div class="card-img">
-                            <?php if ($item['primary_image']): ?>
-                            <img src="<?= $item['primary_image'] ?>" alt="<?= clean($item['name']) ?>" loading="lazy">
-                            <?php else: ?>
-                            <?php
-                                $placeholder_map = [
-                                    'business' => '/assets/img/placeholders/business.png',
-                                    'tourism'  => '/assets/img/placeholders/tourism.png',
-                                    'creator'  => '/assets/img/placeholders/creator.png',
-                                ];
-                                $ph = $placeholder_map[$item['type']] ?? $placeholder_map['business'];
-                            ?>
-                            <img src="<?= $ph ?>" alt="<?= clean($item['name']) ?>" loading="lazy" style="object-fit:cover;">
-                            <?php endif; ?>
+                            <img src="<?= get_listing_image($item) ?>" alt="<?= clean($item['name']) ?>" loading="lazy">
                         </div>
                         <div class="card-body">
                             <div class="listing-info">

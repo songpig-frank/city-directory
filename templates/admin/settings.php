@@ -56,7 +56,35 @@
             </div>
 
             <div class="form-section" style="margin-top:var(--space-8);">
-                <h2 style="font-size:var(--text-xl);margin-bottom:var(--space-4);padding-bottom:var(--space-2);border-bottom:1px solid var(--gray-200);">Theme & Colors</h2>
+                <h2 style="font-size:var(--text-xl);margin-bottom:var(--space-4);padding-bottom:var(--space-2);border-bottom:1px solid var(--gray-200);">📊 Tracking & Analytics</h2>
+                
+                <div class="form-group">
+                    <label>Google Analytics ID (G-XXXXXXX)</label>
+                    <input type="text" name="google_analytics_id" value="<?= clean($settings['google_analytics_id'] ?? '') ?>" placeholder="G-XXXXXXXXXX">
+                </div>
+
+                <div class="form-group">
+                    <label>Google AdSense Publisher ID (pub-XXXXXX)</label>
+                    <input type="text" name="google_adsense_id" value="<?= clean($settings['google_adsense_id'] ?? '') ?>" placeholder="pub-XXXXXXXXXXXXXXXX">
+                </div>
+            </div>
+
+            <div class="form-section" style="margin-top:var(--space-8);">
+                <h2 style="font-size:var(--text-xl);margin-bottom:var(--space-4);padding-bottom:var(--space-2);border-bottom:1px solid var(--gray-200);">✉️ Site Information</h2>
+                
+                <div class="form-group">
+                    <label>Contact Email</label>
+                    <input type="email" name="contact_email" value="<?= clean($settings['contact_email'] ?? '') ?>" placeholder="admin@tampakan.com">
+                </div>
+
+                <div class="form-group">
+                    <label>Footer Copyright Text</label>
+                    <textarea name="footer_text" rows="2"><?= clean($settings['footer_text'] ?? '') ?></textarea>
+                </div>
+            </div>
+
+            <div class="form-section" style="margin-top:var(--space-8);">
+                <h2 style="font-size:var(--text-xl);margin-bottom:var(--space-4);padding-bottom:var(--space-2);border-bottom:1px solid var(--gray-200);">🎨 Theme & Colors</h2>
                 
                 <div class="form-group">
                     <label>Primary Brand Color (Hex)</label>
@@ -69,10 +97,12 @@
                 <script>
                     const picker = document.getElementById('colorPicker');
                     const hex = document.getElementById('colorHex');
-                    picker.addEventListener('input', e => hex.value = e.target.value);
-                    hex.addEventListener('input', e => {
-                        if(/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) picker.value = e.target.value;
-                    });
+                    if (picker && hex) {
+                        picker.addEventListener('input', e => hex.value = e.target.value);
+                        hex.addEventListener('input', e => {
+                            if(/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) picker.value = e.target.value;
+                        });
+                    }
                 </script>
             </div>
 

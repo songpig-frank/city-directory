@@ -253,6 +253,28 @@ function waze_url(float $lat, float $lng): string {
 // ── Image Helpers ──────────────────────────────────────────────────
 
 /**
+ * Get the image for a listing, with robust fallbacks.
+ * 1. listing['primary_image']
+ * 2. category['default_image'] (if we add it later)
+ * 3. Type-specific placeholder (business, tourism, creator)
+ * 4. System default
+ */
+function get_listing_image(?array $listing): string {
+    if (!empty($listing['primary_image'])) {
+        return $listing['primary_image'];
+    }
+
+    $type = $listing['type'] ?? 'business';
+    
+    return match($type) {
+        'tourism' => '/assets/img/placeholder-tourism.jpg',
+        'creator' => '/assets/img/placeholder-creator.jpg',
+        'essential'=> '/assets/img/placeholder-essential.jpg',
+        default   => '/assets/img/placeholder-business.jpg'
+    };
+}
+
+/**
  * Handle image upload. Returns path on success, null on failure.
  */
 function upload_image(array $file, string $subfolder = 'listings'): ?string {
