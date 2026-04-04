@@ -6,7 +6,7 @@
     <div class="admin-content">
         <div class="admin-header" style="display:flex; justify-content:space-between; align-items:center;">
             <div>
-                <h1 style="font-family:var(--font-heading); font-size:var(--text-2xl);">🚀 Dashboard (V3 Active)</h1>
+                <h1 style="font-family:var(--font-heading); font-size:var(--text-2xl);">🚀 Dashboard</h1>
                 <span class="text-sm text-muted">Welcome back, <?= clean($_SESSION['user_name'] ?? 'Admin') ?></span>
             </div>
             <div style="display:flex; gap:var(--space-3);">
