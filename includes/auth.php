@@ -141,17 +141,25 @@ function auth_can(string $duty_slug): bool {
     $user_role = auth_role();
     if ($user_role === 'super_admin') return true;
     
-    // Cache perms in session for speed
+    // 2. Cache perms in session for speed
     if (!isset($_SESSION['user_duties'])) {
         $user_id = auth_id();
-        $duties = db_query("
-            SELECT p.slug FROM permissions p
-            JOIN role_permissions rp ON p.id = rp.permission_id
-            JOIN roles r ON rp.role_id = r.id
-            JOIN users u ON u.role = r.slug
-            WHERE u.id = ?
-        ", [$user_id]);
-        $_SESSION['user_duties'] = array_column($duties, 'slug');
+        try {
+            $duties = db_query("
+                SELECT p.slug FROM permissions p
+                JOIN role_permissions rp ON p.id = rp.permission_id
+                JOIN roles r ON rp.role_id = r.id
+                JOIN users u ON u.role = r.slug
+                WHERE u.id = ?
+            ", [$user_id]);
+            $_SESSION['user_duties'] = array_column($duties, 'slug');
+        } catch (Exception $e) {
+            // If tables don't exist yet, allow legacy 'admin' to do everything
+            if (auth_role() === 'admin') {
+                return true; 
+            }
+            $_SESSION['user_duties'] = [];
+        }
     }
     
     return in_array($duty_slug, $_SESSION['user_duties']);
