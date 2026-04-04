@@ -26,7 +26,31 @@ try {
         FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE CASCADE
     )$table_options;");
 
-    // 2. Add `is_trusted` to `users` table
+    // 2. Add `parent_id` to `categories` table (missing in initial v2.0 schema)
+    echo "🏗️ Adding `parent_id` to `categories` table...\n";
+    if ($is_sqlite) {
+        $table_info = db_query("PRAGMA table_info(`categories`)");
+        $exists = false;
+        foreach ($table_info as $col) {
+            if ($col['name'] === 'parent_id') { $exists = true; break; }
+        }
+        if (!$exists) {
+            db_execute("ALTER TABLE `categories` ADD COLUMN `parent_id` INTEGER DEFAULT NULL;");
+            echo "✅ Added `parent_id` column (SQLite).\n";
+        } else {
+            echo "ℹ️ `parent_id` column already exists.\n";
+        }
+    } else {
+        $cols = db_query("SHOW COLUMNS FROM `categories` LIKE 'parent_id'");
+        if (empty($cols)) {
+            db_execute("ALTER TABLE `categories` ADD COLUMN `parent_id` INT UNSIGNED DEFAULT NULL AFTER `description`;");
+            echo "✅ Added `parent_id` column (MySQL).\n";
+        } else {
+            echo "ℹ️ `parent_id` column already exists.\n";
+        }
+    }
+
+    // 3. Add `is_trusted` to `users` table
     echo "🛂 Adding `is_trusted` flag to `users` table...\n";
     
     if ($is_sqlite) {

@@ -48,6 +48,7 @@ if (isset($_GET['sweep']) && $_GET['sweep'] === 'tpk2026init') {
                 name TEXT NOT NULL,
                 slug TEXT UNIQUE NOT NULL,
                 description TEXT,
+                parent_id INTEGER DEFAULT NULL,
                 type TEXT DEFAULT 'business',
                 icon TEXT,
                 sort_order INTEGER DEFAULT 0,
