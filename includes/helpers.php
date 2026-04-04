@@ -1,7 +1,24 @@
 <?php
 /**
  * CityDirectory — Helper Functions
+ * Includes PHP 8.0+ Polyfills for older servers (7.4)
  */
+
+if (!function_exists('str_starts_with')) {
+    function str_starts_with($haystack, $needle) {
+        return (string)$needle !== '' && strncmp($haystack, $needle, strlen($needle)) === 0;
+    }
+}
+if (!function_exists('str_ends_with')) {
+    function str_ends_with($haystack, $needle) {
+        return (string)$needle !== '' && substr($haystack, -strlen($needle)) === (string)$needle;
+    }
+}
+if (!function_exists('str_contains')) {
+    function str_contains($haystack, $needle) {
+        return (string)$needle !== '' && strpos($haystack, $needle) !== false;
+    }
+}
 
 // ── Security ───────────────────────────────────────────────────────
 
