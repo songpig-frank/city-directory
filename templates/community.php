@@ -42,13 +42,7 @@
                 <?php foreach ($vloggers as $item): ?>
                 <a href="<?= listing_url($item) ?>" class="card">
                     <div class="card-img" style="aspect-ratio:4/3;">
-                        <?php if ($item['primary_image']): ?>
-                        <img src="<?= $item['primary_image'] ?>" alt="<?= clean($item['name']) ?>" loading="lazy">
-                        <?php else: ?>
-                        <div style="width:100%;height:100%;background:linear-gradient(135deg,var(--primary-100),var(--primary-200));display:flex;align-items:center;justify-content:center;">
-                            <i data-lucide="video" style="width:24px;height:24px;color:rgba(255,255,255,0.5);"></i>
-                        </div>
-                        <?php endif; ?>
+                        <img src="<?= get_listing_image($item) ?>" alt="<?= clean($item['name']) ?>" loading="lazy">
                     </div>
                     <div class="card-body" style="text-align:center;">
                         <h3 class="card-title"><?= clean($item['name']) ?></h3>
