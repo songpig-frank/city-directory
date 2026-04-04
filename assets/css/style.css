@@ -619,24 +619,22 @@ body.device-tablet .visible-desktop { display: none !important; }
 }
 .card-img {
     position: relative;
-    height: 180px;
+    height: 200px; /* More cinematic height */
     overflow: hidden;
-    background: var(--bg-soft, #f8fafc); /* Frame background */
+    background: var(--bg-soft, #f8fafc);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: var(--space-2);
+    padding: 0; /* Full-bleed: removed padding */
 }
 .card-img img {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
-    object-fit: contain;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Fill the entire top of the card */
     transition: transform var(--transition-slow);
 }
-.card:hover .card-img img { transform: scale(1.05); }
-.card-body { padding: var(--space-4); }
+.card:hover .card-img img { transform: scale(1.1); }
+.card-body { padding: var(--space-5); } /* More breathing room below larger images */
 .card-title {
     font-family: var(--font-heading);
     font-weight: 700;
