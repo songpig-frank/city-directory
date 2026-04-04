@@ -88,6 +88,19 @@ function rate_limit(string $endpoint, ?int $max = null, ?int $window = null): bo
 // ── Text Helpers ───────────────────────────────────────────────────
 
 /**
+ * Generate robust initials from a name (e.g. "John Doe" -> "JD", "Admin" -> "A").
+ */
+function get_initials(?string $name): string {
+    if (empty($name)) return '??';
+    $parts = explode(' ', trim($name));
+    $initials = substr($parts[0], 0, 1);
+    if (count($parts) > 1) {
+        $initials .= substr($parts[count($parts) - 1], 0, 1);
+    }
+    return strtoupper($initials);
+}
+
+/**
  * Sanitize user input.
  */
 function clean(string $input): string {

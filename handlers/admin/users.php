@@ -9,7 +9,8 @@ $roles = db_query("SELECT * FROM roles ORDER BY name");
 
 $title = 'User Management - Admin';
 $content = render('admin/users', [
-    'users' => $users
+    'users' => $users,
+    'roles' => $roles
 ]);
 
 echo render('layout', [

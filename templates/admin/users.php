@@ -47,7 +47,7 @@
                         <td style="padding:var(--space-4) var(--space-6);">
                             <div style="display:flex;align-items:center;gap:var(--space-4);">
                                 <div class="avatar-circle" style="background:var(--primary-light);color:var(--primary);width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;border:1px solid var(--primary-light);">
-                                    <?= strtoupper(substr($user['name'], 0, 1) . substr(explode(' ', $user['name'])[1] ?? '', 0, 1)) ?>
+                                    <?= get_initials($user['name']) ?>
                                 </div>
                                 <div style="display:flex;flex-direction:column;">
                                     <span style="font-weight:700;color:var(--text-main);font-size:15px;"><?= clean($user['name']) ?></span>
@@ -135,9 +135,9 @@
                     <div class="premium-select-wrapper">
                         <i data-lucide="shield-check" class="input-icon"></i>
                         <select name="role" id="drawerRole" class="premium-select">
-                            <?php foreach ($roles ?? [] as $role): ?>
+                            <?php if (isset($roles) && is_array($roles)): foreach ($roles as $role): ?>
                             <option value="<?= $role['slug'] ?>"><?= clean($role['name']) ?></option>
-                            <?php endforeach; ?>
+                            <?php endforeach; endif; ?>
                             <option value="user">Standard User (Portal Only)</option>
                         </select>
                     </div>
