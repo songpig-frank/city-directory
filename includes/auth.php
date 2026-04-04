@@ -169,10 +169,13 @@ function auth_require_duty(string $duty_slug): void {
 }
 
 /**
- * Check if current user has one of the given roles.
+ * Check if the current user has any of the given roles.
  */
 function auth_has_role(string ...$roles): bool {
-    return auth_check() && in_array(auth_role(), $roles);
+    $current_role = auth_role();
+    if (!$current_role) return false;
+    if ($current_role === 'super_admin') return true; // Super-admin legacy override
+    return in_array($current_role, $roles);
 }
 
 /**
