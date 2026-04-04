@@ -57,9 +57,10 @@
                         </td>
                         <td>
                             <div style="display:flex;align-items:center;gap:6px;">
-                                <div style="width:8px;height:8px;border-radius:50%;background:<?= $user['status'] === 'active' ? 'var(--success)' : 'var(--error)' ?>;"></div>
-                                <span class="text-xs font-semibold uppercase tracking-wider" style="color:<?= $user['status'] === 'active' ? 'var(--success)' : 'var(--error)' ?>;">
-                                    <?= clean($user['status']) ?>
+                                <?php $isActive = (int)($user['is_active'] ?? 1); ?>
+                                <div style="width:8px;height:8px;border-radius:50%;background:<?= $isActive ? 'var(--success)' : 'var(--error)' ?>;"></div>
+                                <span class="text-xs font-semibold uppercase tracking-wider" style="color:<?= $isActive ? 'var(--success)' : 'var(--error)' ?>;">
+                                    <?= $isActive ? 'Active' : 'Disabled' ?>
                                 </span>
                             </div>
                         </td>
@@ -326,7 +327,7 @@ function openUserDrawer(user) {
     document.getElementById('drawerName').value = user.name;
     document.getElementById('drawerEmail').value = user.email;
     document.getElementById('drawerRole').value = user.role;
-    document.getElementById('drawerStatus').value = user.is_active;
+    document.getElementById('drawerStatus').value = user.is_active || '1';
 
     // Set Initials in Hero
     const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0,2);
