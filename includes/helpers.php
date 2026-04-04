@@ -297,10 +297,10 @@ function get_listing_image(?array $listing): string {
     $type = $listing['type'] ?? 'business';
     
     return match($type) {
-        'tourism' => '/assets/img/placeholder-tourism.jpg',
-        'creator' => '/assets/img/placeholder-creator.jpg',
-        'essential'=> '/assets/img/placeholder-essential.jpg',
-        default   => '/assets/img/placeholder-business.jpg'
+        'tourism' => '/assets/img/placeholder-tourism.png',
+        'creator' => '/assets/img/placeholder-creator.png',
+        'essential'=> '/assets/img/placeholder-essential.png',
+        default   => '/assets/img/placeholder-business.png'
     };
 }
 

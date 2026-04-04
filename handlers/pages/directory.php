@@ -14,6 +14,7 @@ $categories = db_query(
      LEFT JOIN listings l ON c.id = l.category_id AND l.status = 'active'
      WHERE c.is_active = 1
      GROUP BY c.id
+     HAVING listing_count > 0
      ORDER BY c.sort_order, c.name"
 );
 
