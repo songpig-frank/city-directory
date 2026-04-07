@@ -201,6 +201,15 @@ if (isset($_GET['sweep']) && $_GET['sweep'] === 'tpk2026init') {
                 status TEXT DEFAULT 'pending',
                 created_at TEXT DEFAULT (datetime('now'))
             );
+
+            CREATE TABLE IF NOT EXISTS listing_categories (
+                listing_id INTEGER NOT NULL,
+                category_id INTEGER NOT NULL,
+                is_primary INTEGER DEFAULT 0,
+                PRIMARY KEY (listing_id, category_id),
+                FOREIGN KEY (listing_id) REFERENCES listings(id) ON DELETE CASCADE,
+                FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+            );
         ");
         echo "[OK] All tables created/verified\n";
 

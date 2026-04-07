@@ -85,11 +85,6 @@ $entries = [
         'desc' => "Local public figure and community creator sharing the everyday life and vibrant spirit of Tampakan, South Cotabato.",
         'fb' => 'https://www.facebook.com/toto.mondragon.belleza'
     ],
-    [
-        'cat' => $correct_creator_cat, 'type' => 'creator', 'name' => 'Connie Tabano', 'slug' => 'connie-tabano',
-        'desc' => "Tampakan personality and creator connecting the community through engaging posts, stories, and local updates.",
-        'fb' => 'https://www.facebook.com/jhocontabanoadto27'
-    ],
 
     // ── RESTAURANTS / DINING ──────────────────────────────────────
     [
