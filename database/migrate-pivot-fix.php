@@ -72,6 +72,19 @@ try {
     $visible_count = $pdo->query("SELECT COUNT(DISTINCT l.id) FROM listings l JOIN listing_categories lc ON l.id = lc.listing_id WHERE l.status = 'active'")->fetchColumn();
     echo "📊 Total visible listings now: {$visible_count}\n";
     
+    // 3. Complete Removal of Connie Tabano
+    echo "🧹 Scrubbing 'Connie Tabano' from database...\n";
+    $connie = $pdo->query("SELECT id FROM listings WHERE slug = 'connie-tabano'")->fetchColumn();
+    if ($connie) {
+        $pdo->exec("DELETE FROM listing_images WHERE listing_id = $connie");
+        $pdo->exec("DELETE FROM reviews WHERE listing_id = $connie");
+        $pdo->exec("DELETE FROM listing_categories WHERE listing_id = $connie");
+        $pdo->exec("DELETE FROM listings WHERE id = $connie");
+        echo "✅ 'Connie Tabano' has been completely removed from the database.\n";
+    } else {
+        echo "ℹ️ 'Connie Tabano' was not found in the database.\n";
+    }
+    
 } catch (Exception $e) {
     echo "❌ Error: " . $e->getMessage() . "\n";
 }
